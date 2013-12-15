@@ -1,6 +1,9 @@
 <?php
 /*
-Wikicup statistics display © 2011 Harry Burt <jarry1250@gmail.com>
+Wikicup statistics display ï¿½ 2011 Harry Burt <jarry1250@gmail.com>
+
+@todo: caching
+@todo: login problem / new peachy
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,20 +20,89 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-require_once( '/data/project/jarry-common/public_html/global.php' );
-
-//These you might want to change
+// These you might want to change
 $categories = array( 'FA' => 'Featured Article', 'GA' => 'Good Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FPO' => 'Featured Portal', 'FT' => 'Featured Topic article', 'GT' => 'Good Topic article', 'DYK' => 'Did You Know', 'ITN' => 'In the News article', 'GAR' => 'Good Article Review' );
 $points = array('FA' => 100, 'GA' => 30, 'FL' => 45, 'FP' => 35, 'FPO' => 35, 'FT' => 10, 'GT' => 3, 'DYK' => 5, 'ITN' => 10, 'GAR' => 4);
 $totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' => 0, 'GT' => 0, 'DYK' => 0, 'ITN' => 0, 'GAR' => 0 );
-$masspoolmonths = array( 'January', 'February' );
-$masspoolqual = 64;
+$massPoolMonths = array( 'January', 'February' );
+$numToQualifyFromMassPool = 64;
 
-//Everything below this line you probably don't
-$year = date( 'Y' );
-$inmasspool = in_array( date('F'), $masspoolmonths );
+// Everything below this line you probably don't
+$thisYear = date( 'Y' );
+$year = ( isset( $_GET['year'] ) && preg_match( '/^20[12][0-9]$/', $_GET['year'] ) && $year <= $thisYear )
+	? $_GET['year'] : $thisYear;
+$yearSupported = ( $year >= 2010 );
 
-function makepresentable( $assoc ){
+// Adjust points for non-current years
+if( $year < 2013 ){
+	$points['DYK'] = 10;
+	$points['GAR'] = 2;
+}
+if( $year < 2012 ){
+	$points['DYK'] = 5;
+	$points['FL'] = 40;
+	$points['FS'] = 35;
+	$points['FT'] = 15;
+	$points['GT'] = 10;
+
+	$categories = array( 'FA' => 'Featured Article', 'GA' => 'Good Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FS' => 'Featured Sound', 'FPO' => 'Featured Portal', 'FT' => 'Featured Topic article', 'GT' => 'Good Topic article', 'DYK' => 'Did You Know', 'ITN' => 'In the News article', 'GAR' => 'Good Article Review' );
+}
+if( $year < 2011 ){
+	$points['DYK'] = 10;
+	$points['GA'] = 40;
+	$points['FL'] = 40;
+	unset( $categories['GAR'] );
+	$categories['VP'] = 'Valued Pictures';
+	$points['VP'] = 5;
+}
+$isMassPoolMonth = in_array( date('F'), $massPoolMonths );
+
+require_once( '/data/project/jarry-common/public_html/global.php' );
+require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
+$site = Peachy::newWiki();
+
+$yearPage = initPage( 'Wikipedia:WikiCup/History/'.$year );
+if( !$yearPage->get_exists() ) die( "Bad year supplied" );
+$yearText = $yearPage->get_text();
+$pools = preg_split( '/==+ *Pool/',$yearText );
+if( count( $pools ) > 1 ) array_shift( $pools ); //clear header row if any
+
+$rounds = array();
+$totals = array();
+$i = 0;
+while( true ){
+	$roundPage = initPage( 'Wikipedia:WikiCup/History/'.$year.'/Round '.++$i );
+	$isCurrentRound = !$roundPage->get_exists();
+	$roundText = $isCurrentRound ? $yearText : getFromCache( $roundPage );
+
+	preg_match_all( "/\{\{.*?\|(.*?)}}.*?(\|\|[0-9]+){11}\|\|'''/", $roundText, $matches );
+	$lines = $matches[0];
+	$rounds[$i] = array();
+	foreach( $lines as $index => $line ) {
+		$bits = explode( '||', $line );
+		array_shift( $bits );
+
+		$contestantName = $matches[1][$index];
+		foreach ( $categories as $key => $value ){
+			if( !isset( $rounds[$i][$key] ) ) $rounds[$i][$key] = array();
+			if( !isset( $rounds[$i][$key]['total'] ) ) $rounds[$i][$key]['total'] = 0;
+			if( !isset( $totals[$key] ) ) $totals[$key] = array();
+			if( !isset( $totals[$key]['total'] ) ) $totals[$key]['total'] = 0;
+			$number = array_shift( $bits ) / $points[$key];
+			if( $number > 0 ) {
+				$rounds[$i][$key][$contestantName] = $number;
+				$rounds[$i][$key]['total'] += $number;
+				$totals[$key]['total'] += $number;
+
+				if( !isset( $totals[$key][$contestantName] ) ) $totals[$key][$contestantName] = 0;
+				$totals[$key][$contestantName] += $number;
+			}
+		}
+	}
+	if( $isCurrentRound ) break;
+}
+
+function makePresentable( $assoc ){
 	$string = "";
 	foreach( $assoc as $key=>$value ){
 		$string .= $key . " ($value), ";
@@ -39,29 +111,33 @@ function makepresentable( $assoc ){
 	return $string;
 }
 
-echo "<!--";
-require_once( '/data/project/jarry-common/public_html/mw-peachy/Init.php' );
-$site = Peachy::newWiki( 'anon' );
-
-$year_page = initPage( 'Wikipedia:WikiCup/History/'.$year );
-$year_text = $year_page->get_text();
-$pools = preg_split( '/==+ *Pool/',$year_text );
-if( count( $pools ) > 1 ) array_shift( $pools ); //clear header row if any
-
-$log_page = initPage( 'Wikipedia:WikiCup/History/'.$year.'/Running totals' );
-$existing_text = $log_page->get_text();
-echo "-->";
-	
-$tables = explode( '{|',$existing_text );
-array_shift( $tables );
+function getFromCache( Page &$page ){
+	$filename = '/data/project/wikicup/public_html/cache/' . md5( $page->get_title() ) . '.txt';
+	if( file_exists( $filename ) ) {
+		// Cache HIT
+		return file_get_contents( $filename );
+	}
+	// Cache MISS
+	$text = $page->get_text();
+	file_put_contents( $filename, $text );
+	return $text;
+}
 
 echo get_html( 'header', 'Wikicup stats' );
+
+if( $year == $thisYear ){
+	echo '<h3>Current status</h3>';
+	echo '<p>Updated live (where appropriate). Unofficial. Subject to change; may not take into account ties properly.</p>';
+} else {
+	echo '<h3>Final result</h3>';
+	echo '<p><strong>This is an archive.</strong>';
+	if( !$yearSupported ) echo ' Since you are viewing a year prior to 2010, I\'m afraid I <strong>cannot guarantee that the data below makes sense</strong>.';
+	echo '</p>';
+}
 ?>
-		<h3>Current status</h3>
-		<p>Updated live. Unofficial. Subject to change; may not take into account ties properly.</p>
 		<?php
-		$poolwinners = array();
-		$fastestlosers = array();
+		$poolWinners = array();
+		$fastestLosers = array();
 		foreach ( $pools as $pool ){
 			preg_match_all( "/#AAFFAA[^{]+\{\{.*?\|(.*?)}}[^']+'''(\d+)'''/", $pool, $matches );
 			$contestants = array();
@@ -70,30 +146,30 @@ echo get_html( 'header', 'Wikicup stats' );
 				$contestants[$matches[1][$i]] = $matches[2][$i];
 			}
 			arsort( $contestants );
-			if( $inmasspool ){
-				$qualifying = array_slice( $contestants, 0, $masspoolqual );
+			if( $isMassPoolMonth ){
+				$qualifying = array_slice( $contestants, 0, $numToQualifyFromMassPool );
 			} else {
-				$poolwinners = array_merge( $poolwinners, array_slice( $contestants, 0, 2 ) );
-				$fastestlosers = array_merge( $fastestlosers,  array_slice( $contestants, 2 ) );
+				$poolWinners = array_merge( $poolWinners, array_slice( $contestants, 0, 2 ) );
+				$fastestLosers = array_merge( $fastestLosers,  array_slice( $contestants, 2 ) );
 			}
 		}
-		arsort( $fastestlosers );
-		$fastestlosers = array_slice( $fastestlosers, 0, count( $poolwinners ) );
+		arsort( $fastestLosers );
+		$fastestLosers = array_slice( $fastestLosers, 0, count( $poolWinners ) );
 		
-		if( !$inmasspool ){
+		if( !$isMassPoolMonth ){
 			if( count( $pools ) === 1 ){
-				$poolwinnernames = array_keys( $poolwinners );
-				echo "<p><strong>Champion:</strong> " . $poolwinnernames[0] . " (" . $poolwinners[ $poolwinnernames[0] ] ."pts)</p>
-					<p><strong>Runner up:</strong> " . $poolwinnernames[1] . " (" . $poolwinners[ $poolwinnernames[1] ] ."pts)</p>";
+				$poolWinnerNames = array_keys( $poolWinners );
+				echo "<p><strong>Champion:</strong> " . $poolWinnerNames[0] . " (" . $poolWinners[ $poolWinnerNames[0] ] ."pts)</p>
+					<p><strong>Runner up:</strong> " . $poolWinnerNames[1] . " (" . $poolWinners[ $poolWinnerNames[1] ] ."pts)</p>";
 			} else {
-				echo "<p><strong>As pool leader:</strong> " . makepresentable( $poolwinners ) . "</p>
-		<p><strong>As \"fastest loser\":</strong> " . makepresentable( $fastestlosers ) . "</p>";
+				echo "<p><strong>As pool leader:</strong> " . makePresentable( $poolWinners ) . "</p>
+		<p><strong>As \"fastest loser\":</strong> " . makePresentable( $fastestLosers ) . "</p>";
 			}
 		} else {
-			echo "<p><strong>Qualifying (in order):</strong> " . makepresentable( $qualifying ) . "</p>";
+			echo "<p><strong>Qualifying (in order):</strong> " . makePresentable( $qualifying ) . "</p>";
 		}
 	?>
-		<h3>Articles created (method A)</h3>
+		<h3>Articles created</h3>
 		<table>
 		<thead>
 		<tr>
@@ -103,130 +179,42 @@ echo get_html( 'header', 'Wikicup stats' );
 					echo "<th><abbr title=\"$value\">$key</abbr></th>\n";
 				}
 			?>
-			<!--<th><abbr title="Multipliers used">M</abbr></th>-->
 		</tr>
 		</thead>
 		<tbody>
 		<?php
-			$i = 1;
-			foreach( $tables as $table ){
+			$i = 0;
+			foreach( $rounds as $round ) {
 				$counts = array();
-				if( $i % 2 == 1 ){
+				if( ++$i % 2 == 1 ){
 					$class = "orig";
 				} else {
 					$class= "alt";
-				}
-				$round_page = initPage( 'Wikipedia:WikiCup/History/'.$year.'/Round '.$i );
-				if( !$round_page->get_exists() ){
-					$round_text = $round_page->get_text();
-				} else {
-					$round_text = $year_text;
 				}
 				echo "<tr>\n<th class='$class'>Round $i</th>\n";
-				preg_match_all( "/(\|\|[0-9]+){11}\|\|'''/", $round_text, $matches );
-				$lines = $matches[0];
-				foreach( $lines as $line ) {
-					$bits = explode( '||', $line );
-					array_shift( $bits );
-					foreach ( $categories as $key => $value ){
-						if( !isset( $counts[$key] ) ) $counts[$key] = 0;
-						$number = array_shift( $bits ) / $points[$key];
-						$counts[$key] += $number;
-						$totals[$key] += $number;
-					}
-				}
-				foreach( $counts as $count ) echo "<td class='$class'>" . $count . "</td>\n";
+				foreach( $round as $category ) echo "<td class='$class'>" . $category['total'] . "</td>\n";
 				echo "</tr>\n";
-				//$mcount = substr_count( $table, "||" );
-				//echo "<td class='$class'>" . $mcount . "</td>\n";
-				//$totals['m'] += $mcount;
-				$i++;
 			}
-			if( $i % 2 == 1 ){
+			if( ++$i % 2 == 1 ){
 				$class = "orig";
 			} else {
 				$class= "alt";
 			}
 			echo "<tr>\n<th class='$class'>Total</th>\n";
-			foreach ( $totals as $key=>$total ){
-				echo "<td class='$class'>" . $total . "</td>\n";
+			foreach ( $totals as $key => $total ){
+				echo "<td class='$class'>" . $total['total'] . "</td>\n";
 			}
 			echo "</tr>";
 		?>
 		</tbody>
 		<tfoot>
 		<tr>
-		<td style="border:none; padding:none;" colspan="13"><p style="font-size:60%">Updated live. Key: Non-unique article/category combinations.</p></td>
+		<td style="border:none; padding:0;" colspan="13"><p style="font-size:60%">Updated live. Key: Non-unique article/category combinations.</p></td>
 		</tr>
 		</tfoot>
 		</table>
-		<h3>Articles created (method B)</h3>
-		<table>
-		<thead>
-		<tr>
-			<th class="nobg"></th>
-			<?php
-				foreach( $categories as $key => $value ){
-					echo "<th><abbr title=\"$value\">$key</abbr></th>\n";
-				}
-			?>
-			<!--<th><abbr title="Multipliers used">M</abbr></th>-->
-		</tr>
-		</thead>
-		<tbody>
-		<?php
-$totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' => 0, 'GT' => 0, 'DYK' => 0, 'ITN' => 0, 'GAR' => 0 );
-			$i = 1;
-			foreach( $tables as $table ){
-				if( $i % 2 == 1 ){
-					$class = "orig";
-				} else {
-					$class= "alt";
-				}
-				if( $i==2 ){
-					echo "<tr>\n<th class='$class'>Round 2 (estimated)</th>\n";
-					foreach ( $categories as $key => $value ){
-						preg_match_all( '/\|([^|]+)\|\|'.$value.'\|\|/', $table, $matches );
-						$countall = round( count( $matches[1] ) * 5/4 );
-						$countuni = round( count( array_unique( $matches[1] ) ) * 5/4 );
-						$extra = ( $countuni !== $countall ) ? " ($countall)" : "";
-						echo "<td class='$class'>" . $countuni . $extra . "</td>\n";
-					}
-				} else {
-					echo "<tr>\n<th class='$class'>Round $i</th>\n";
-					foreach ( $categories as $key => $value ){
-						preg_match_all( '/\|([^|]+)\|\|'.$value.'\|\|/', $table, $matches );
-						$countall = count( $matches[1] );
-						$countuni = count( array_unique( $matches[1] ) );
-						$extra = ( $countuni !== $countall ) ? " ($countall)" : "";
-						echo "<td class='$class'>" . $countuni . $extra . "</td>\n";
-						$totals[$key] += $countuni;
-					}
-				}
-				echo "</tr>\n";
-				$i++;
-			}
-			if( $i % 2 == 1 ){
-				$class = "orig";
-			} else {
-				$class= "alt";
-			}
-			echo "<tr>\n<th class='$class'>Total</th>\n";
-			foreach ( $totals as $key=>$total ){
-				echo "<td class='$class'>" . $total . "</td>\n";
-			}
-			echo "</tr>";
-		?>
-		</tbody>
-		<tfoot>
-		<tr>
-		<td style="border:none; padding:none;" colspan="13"><p style="font-size:60%">Not updated live. Key: Unique article/category cominations (number of claims, if different). Round 2 original sscores affected by data loss.</p></td>
-		</tr>
-		</tfoot>
-		</table>
-		
+
 		<h3>Top scorers</h3>
-		<p><strong>NOTE:</strong> Round 2's data (and hence the totals as well) is slightly wrong; ~20% of submissions have been lost. Treat with caution.</p>
 		<table>
 		<thead>
 		<tr>
@@ -240,17 +228,16 @@ $totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' =>
 		</thead>
 		<tbody>
 		<?php
-			$i = 1;
-			foreach( $tables as $table ){
-				if( $i % 2 == 1 ){
+			$i = 0;
+			foreach( $rounds as $round ){
+				if( ++$i % 2 == 1 ){
 					$class = "orig";
 				} else {
 					$class= "alt";
 				}
 				echo "<tr>\n<th class='$class'>Round $i</th>\n";
-				foreach ( $categories as $key => $value ){
-					preg_match_all( '/\|([^|]+)\|\|[^|]+\|\|'.$value.'\|\|/', $table, $matches );
-					$contribs = array_count_values( $matches[1] );
+				foreach ( $round as $category => $contribs ){
+					unset( $contribs['total'] );
 					asort( $contribs );
 					$top = array();
 
@@ -274,7 +261,6 @@ $totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' =>
 					}
 				}
 				echo "</tr>\n";
-				$i++;
 			}
 			if( $i % 2 == 1 ){
 				$class = "orig";
@@ -282,9 +268,8 @@ $totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' =>
 				$class= "alt";
 			}
 			echo "<tr>\n<th class='$class'>Total</th>\n";
-			foreach ( $categories as $key => $value ){
-				preg_match_all( '/\|([^|]+)\|\|[^|]+\|\|'.$value.'\|\|/', $existing_text, $matches );
-				$contribs = array_count_values( $matches[1] );
+			foreach ( $totals as $key => $contribs ){
+				unset( $contribs['total'] );
 				asort( $contribs );
 				$top = array();
 				$benchmark = ( count( $contribs ) == 0 ) ? 0 : max( $contribs );
@@ -312,7 +297,7 @@ $totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' =>
 		</tbody>
 		<tfoot>
 		<tr>
-		<td style="border:none; padding:none;" colspan="13"><p style="font-size:60%">Not updated live. Key: Top scorer/s (number of articles claimed)</p></td>
+		<td style="border:none; padding:0;" colspan="13"><p style="font-size:60%">Updated live. Key: Top scorer/s (number of articles claimed)</p></td>
 		</tr>
 		</tfoot>
 		</table>

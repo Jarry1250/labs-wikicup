@@ -301,6 +301,9 @@ if( $year == $thisYear ){
 		</tr>
 		</tfoot>
 		</table>
+	</div>
+	<div class="additional">
+		<p>Results by year: <a href="index.php?year=2010">2010</a> - <a href="index.php?year=2011">2011</a> - <a href="index.php?year=2012">2012</a> - <a href="index.php?year=2013">2013</a> - <a href="index.php?year=2014">2014</a></p>
 <?php
 	echo get_html( 'footer' );
 ?>

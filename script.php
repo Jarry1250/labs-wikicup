@@ -27,7 +27,7 @@
 
 	$categories = array_values(
 		array(
-			'FA'  => 100, 'GA' => 30, 'FL' => 45, 'FP' => 35, 'FPO' => 35, 'FT' => 10, 'GT' => 3, 'DYK' => 5,
+			'FA'  => 100, 'GA' => 30, 'FL' => 45, 'FP' => 35, 'FPO' => 45, 'FT' => 10, 'GT' => 3, 'DYK' => 5,
 			'ITN' => 10, 'GAR' => 4
 		)
 	);
@@ -313,8 +313,8 @@
 				$preadditive += 5;
 			}
 			$creation = getCreationDate( $pageName );
-			if( $creation && $creation < strtotime( '1 January 2008' ) ){
-				$postadditive += 2;
+			if( $creation && $creation < strtotime( '1 January ' . ( intval( date( 'Y' ) ) - 5 ) ) ){
+				$postadditive += 5;
 			}
 		}
 

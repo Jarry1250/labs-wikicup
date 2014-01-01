@@ -9,12 +9,12 @@
 	 * it under the terms of the GNU General Public License as published by
 	 * the Free Software Foundation; either version 2 of the License, or
 	 * (at your option) any later version.
- *
+	 *
 	 * This program is distributed in the hope that it will be useful,
 	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	 * GNU General Public License for more details.
- *
+	 *
 	 * You should have received a copy of the GNU General Public License
 	 * along with this program; if not, write to the Free Software
 	 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -25,30 +25,17 @@
 	// same order must be used here, on the Submissions pages and in the
 	// column headings on the main page.
 
-	$categories = array_values(
-		array(
-			'FA'  => 100, 'GA' => 30, 'FL' => 45, 'FP' => 35, 'FPO' => 45, 'FT' => 10, 'GT' => 3, 'DYK' => 5,
-			'ITN' => 10, 'GAR' => 4
-		)
-	);
-	$lineStarts = array_values(
-		array(
-			'FA'  => '\#', 'GA' => '\#', 'FL' => '\#', 'FP' => '\#', 'FPO' => '\#', 'FT' => '\#\#', 'GT' => '\#\#',
-			'DYK' => '\#', 'ITN' => '\#', 'GAR' => '\#'
-		)
-	);
-	$names = array_values(
-		array(
-			'FA'  => 'Featured Article', 'GA' => 'Good Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture',
-			'FPO' => 'Featured Portal', 'FT' => 'Featured Topic article', 'GT' => 'Good Topic article',
-			'DYK' => 'Did You Know', 'ITN' => 'In the News article', 'GAR' => 'Good Article Review'
-		)
-	);
-	$hasMultipliers = array_values(
-		array(
-			'FA'  => true, 'GA' => true, 'FL' => false, 'FP' => false, 'FPO' => true, 'FT' => false, 'GT' => false,
-			'DYK' => true, 'ITN' => false, 'GAR' => false
-		)
+	$categories = array(
+		array( 'name' => 'Featured Article', 'points' => 100, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Good Article', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Featured List', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Picture', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Portal', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Featured Topic article', 'points' => 10, 'lineStart' => '\#\n', 'hasMultipliers' => false ),
+		array( 'name' => 'Good Topic article', 'points' => 3, 'lineStart' => '\#\n', 'hasMultipliers' => false ),
+		array( 'name' => 'Did You Know', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'In the News article', 'points' => 10, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Good Article Review', 'points' => 4, 'lineStart' => '\#', 'hasMultipliers' => false ),
 	);
 	$year = date( 'Y' );
 	$apiBase = 'http://en.wikipedia.org/w/api.php?format=json&';
@@ -103,7 +90,7 @@
 			$bonusPoints = 0;
 			foreach( $lines as $line ){
 				if( preg_match(
-					'/^' . $lineStarts[$i] .
+					'/^' . $categories[$i]['lineStart'] .
 					" *'*\[\[(.*?)(\]|\|).*?" .
 					'(Multiplier\|([0-9.]+|none)\|([0-9.]+|none)\|([0-9.]+|none)\}\})?(\w)*$/', $line, $bits
 				)
@@ -116,14 +103,15 @@
 					$multiplier = 1;
 					$preadditive = 0;
 					$postadditive = 0;
-					$basePoints = $categories[$i];
-					if( $hasMultipliers[$i] ){
+					$basePoints = $categories[$i]['points'];
+					if( $categories[$i]['hasMultipliers'] ){
 						if( isset( $bits[4] ) && strlen( $bits[4] ) > 0 ){
 							$multiplier = is_numeric( $bits[4] ) ? floatval( $bits[4] ) : 1;
 							$preadditive = is_numeric( $bits[5] ) ? intval( $bits[5] ) : 0;
 							$postadditive = is_numeric( $bits[6] ) ? intval( $bits[6] ) : 0;
 						} else {
-							list( $multiplier, $preadditive, $postadditive ) = getApplicableMultiplier( $bits[1], $i, $line );
+							list( $multiplier, $preadditive, $postadditive )
+								= getApplicableMultiplier( $bits[1], $categories[$i]['name'], $line );
 							$multiplierText = ( $multiplier == 1 ) ? 'none' : $multiplier;
 							$preadditiveText = ( $preadditive == 0 ) ? 'none' : $preadditive;
 							$postadditiveText = ( $postadditive == 0 ) ? 'none' : $postadditive;
@@ -132,7 +120,7 @@
 						}
 					}
 					if( strpos( $contents, $article ) === false ){
-						$append .= "\n* $contestant ([[$contestantSubpageName|submissions]]) claimed $article as a {$names[$i]}";
+						$append .= "\n* $contestant ([[$contestantSubpageName|submissions]]) claimed $article as a {$categories[$i]['name']}";
 						if( $multiplier > 1 ){
 							$append .= " with a $multiplier-times multiplier";
 						}
@@ -252,11 +240,10 @@
 		return strtotime( $page['revisions'][0]['timestamp'] );
 	}
 
-	function getApplicableMultiplier( $pageName, $i, $line ) {
+	function getApplicableMultiplier( $pageName, $section, $line ) {
 		// TODO: combine API queries
-		global $apiBase, $year, $names;
+		global $apiBase, $year;
 		$pageName = urlencode( $pageName );
-		$section = $names[$i];
 
 		// Find revision id of the last version before 1 January 2013
 		$revId = false;
@@ -308,7 +295,6 @@
 			} else {
 				$dykNom = "Template:Did you know nominations/" . urldecode( $pageName );
 			}
-			$i = array_search( 'Did You Know', $names );
 			if( getApplicableLength( $pageName, $dykNom ) > 5100 ){
 				$preadditive += 5;
 			}

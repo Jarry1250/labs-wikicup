@@ -1,24 +1,24 @@
 ﻿<?php
 	/*	
-		Wikicup scoring bot code
-		Originally the work of Soxred93
-		Modified by Jarry1250 from December 2010
-		Last edit December 2013
-		
-		This program is free software; you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation; either version 2 of the License, or
-		(at your option) any later version.
-
-		This program is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-		GNU General Public License for more details.
-
-		You should have received a copy of the GNU General Public License
-		along with this program; if not, write to the Free Software
-		Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-	*/
+	 * Wikicup scoring bot code
+	 * Originally the work of Soxred93
+	 * Modified by Jarry1250 from December 2010
+	 * Last edit December 2013
+	 *
+	 * This program is free software; you can redistribute it and/or modify
+	 * it under the terms of the GNU General Public License as published by
+	 * the Free Software Foundation; either version 2 of the License, or
+	 * (at your option) any later version.
+ *
+	 * This program is distributed in the hope that it will be useful,
+	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 * GNU General Public License for more details.
+ *
+	 * You should have received a copy of the GNU General Public License
+	 * along with this program; if not, write to the Free Software
+	 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+	 */
 
 	// Things you might actually want to change. For the first six, the
 	// order is what is important, the names are only for readability. The
@@ -163,9 +163,9 @@
 	}
 
 	if( strlen( $append ) > 0 ){
-		file_put_contents($filename, $append, FILE_APPEND);
-		$log_page = initPage('Wikipedia:WikiCup/History/'.$year.'/log');
-		$log_page->edit( "\n" . trim($append), "Bot: adding new claims to the list", true, true, false, "ap");
+		file_put_contents( $filename, $append, FILE_APPEND );
+		$log_page = initPage( 'Wikipedia:WikiCup/History/' . $year . '/log' );
+		$log_page->edit( "\n" . trim( $append ), "Bot: adding new claims to the list", true, true, false, "ap" );
 	}
 
 	echo "Finished,";
@@ -175,7 +175,7 @@
 	} else {
 		echo "no change.\n";
 	}
-	$points_page->edit($points_page_text,"Bot: Updating WikiCup table",true);
+	$pointsPage->edit( $pointsPageText, "Bot: Updating WikiCup table", true );
 
 	echo "<!-- End output at " . date( 'j F Y \a\t H:i' ) . " -->";
 

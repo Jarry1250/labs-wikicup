@@ -275,7 +275,8 @@
 					if( isset( $page['revisions'] ) ){
 						$content = $page['revisions'][0]['*'];
 						$links = json_decode( $content, true );
-						$links = $links['links'];
+						$links = array_keys( $links['links'] );
+						$links = array_filter( $links, 'isWikipedia' );
 						$existsOn = count( $links );
 					}
 				}
@@ -305,4 +306,32 @@
 		}
 
 		return array( $multiplicative, $preadditive, $postadditive );
+	}
+
+	function isWikipedia( $dbname ) {
+		return substr( $dbname, -4 ) == 'wiki'
+			&& substr( $dbname, 0, 9 ) != 'wikimania'
+			&& !in_array( $dbname, array(
+				'advisorywiki',
+				'commonswiki',
+				'donatewiki',
+				'foundationwiki',
+				'incubatorwiki',
+				'loginwiki',
+				'mediawikiwiki',
+				'metawiki',
+				'nostalgiawiki',
+				'outreachwiki',
+				'qualitywiki',
+				'sourceswiki',
+				'specieswiki',
+				'strategywiki',
+				'tenwiki',
+				'test2wiki',
+				'testwiki',
+				'testwikidatawiki',
+				'usabilitywiki',
+				'votewiki',
+				'wikidatawiki',
+			));
 	}

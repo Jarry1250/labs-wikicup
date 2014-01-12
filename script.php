@@ -152,8 +152,8 @@
 
 	if( strlen( $append ) > 0 ){
 		file_put_contents( $filename, $append, FILE_APPEND );
-		$log_page = initPage( 'Wikipedia:WikiCup/History/' . $year . '/log' );
-		$log_page->edit( "\n" . trim( $append ), "Bot: adding new claims to the list", true, true, false, "ap" );
+		$logPage = initPage( 'Wikipedia:WikiCup/History/' . $year . '/log' );
+		$logPage->edit( "\n" . trim( $append ), "Bot: adding new claims to the list", true, true, false, "ap" );
 	}
 
 	echo "Finished,";

@@ -262,14 +262,14 @@
 				$existsOn = $langLinks + 1;
 			}
 		} else {
-			$json = getJSON( "http://wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$pageName&props=info" );
+			$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$pageName&props=info" );
 			if( count( $json['entities'] ) > 0 ){
 				foreach( $json['entities'] as $entity ){
 					$pageName = $entity['id'];
 				}
 				// Find revision id of the last version before 1 January 2013
 				$existsOn = 0;
-				$json = getJSON( "http://wikidata.org/w/api.php?format=json&action=query&prop=revisions&titles=" . $pageName . "&rvprop=content&rvstart=" . $year . "0101000000&rvlimit=1" );
+				$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=query&prop=revisions&titles=" . $pageName . "&rvprop=content&rvstart=" . $year . "0101000000&rvlimit=1" );
 				foreach( $json['query']['pages'] as $page ){
 					// Only one at the moment
 					if( isset( $page['revisions'] ) ){

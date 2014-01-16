@@ -242,47 +242,30 @@
 
 	function getApplicableMultiplier( $pageName, $section, $line ) {
 		// TODO: combine API queries
-		global $apiBase, $year;
+		global $year;
 		$pageName = urlencode( $pageName );
 
-		// Find revision id of the last version before 1 January 2013
-		$revId = false;
-		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pageName&rvprop=ids&rvstart=" . $year . "0101000000&rvlimit=1" );
-		foreach( $json['query']['pages'] as $page ){
-			// Only one at the moment
-			$revId = isset( $page['revisions'] ) ? $page['revisions'][0]['revid'] : false;
-		}
-
-		// Find langlinks for that revision
-		if( $revId ){
-			$json = getJSON( $apiBase . "action=query&prop=langlinks&revids=$revId&lllimit=500" );
+		// Find last Wikidate revision before 1 January
+		$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$pageName&props=info" );
+		if( count( $json['entities'] ) > 0 ){
+			foreach( $json['entities'] as $entity ){
+				$pageName = $entity['id'];
+			}
+			// Grab its content and count langlinks
+			$existsOn = 0;
+			$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=query&prop=revisions&titles=" . $pageName . "&rvprop=content&rvstart=" . $year . "0101000000&rvlimit=1" );
 			foreach( $json['query']['pages'] as $page ){
-				$langLinks = isset( $page['langlinks'] ) ? count( $page['langlinks'] ) : 0;
-				// Also exists on the home wiki
-				$existsOn = $langLinks + 1;
+				// Only one at the moment
+				if( isset( $page['revisions'] ) ){
+					$content = $page['revisions'][0]['*'];
+					$links = json_decode( $content, true );
+					$links = array_keys( $links['links'] );
+					$links = array_filter( $links, 'isWikipedia' );
+					$existsOn = count( $links );
+				}
 			}
 		} else {
-			$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$pageName&props=info" );
-			if( count( $json['entities'] ) > 0 ){
-				foreach( $json['entities'] as $entity ){
-					$pageName = $entity['id'];
-				}
-				// Find revision id of the last version before 1 January 2013
-				$existsOn = 0;
-				$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=query&prop=revisions&titles=" . $pageName . "&rvprop=content&rvstart=" . $year . "0101000000&rvlimit=1" );
-				foreach( $json['query']['pages'] as $page ){
-					// Only one at the moment
-					if( isset( $page['revisions'] ) ){
-						$content = $page['revisions'][0]['*'];
-						$links = json_decode( $content, true );
-						$links = array_keys( $links['links'] );
-						$links = array_filter( $links, 'isWikipedia' );
-						$existsOn = count( $links );
-					}
-				}
-			} else {
-				$existsOn = 0; // Didn't even exist on en.wp, nothing on Wikidata either
-			}
+			$existsOn = 0; // Didn't even exist on Wikidata
 		}
 
 		$multiplicative = 1 + ( 0.2 * floor( $existsOn / 5 ) );

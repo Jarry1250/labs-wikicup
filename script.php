@@ -165,6 +165,8 @@
 	}
 	$pointsPage->edit( $pointsPageText, "Bot: Updating WikiCup table", true );
 
+	$wiki->purge( 'Wikipedia:WikiCup' );
+
 	echo "<!-- End output at " . date( 'j F Y \a\t H:i' ) . " -->";
 
 	function get( $url ) {

@@ -48,6 +48,7 @@
 	echo "<!-- Begin output at " . date( 'j F Y \a\t H:i' ) . " -->\n";
 
 	require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
+	require_once( '/data/project/jarry-common/public_html/libs/Diff.php' );
 	$site = Peachy::newWiki( "livingbot" );
 	$http = new HTTP();
 

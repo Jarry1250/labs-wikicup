@@ -147,7 +147,7 @@
 		}
 		if( $changed ){
 			echo "Loading multiplier assessment diff...\n";
-			echo Diff::load( $contestantSubmissionsOriginal, $contestantSubmissions )->getDiff();
+			Diff::load( $contestantSubmissionsOriginal, $contestantSubmissions )->printUnifiedDiff();
 			$page->edit( $contestantSubmissions, "Bot: Assessing multipliers due. ([[WP:CUPSUGGEST|Stuck for what to work on?]])" );
 		}
 	}
@@ -161,7 +161,7 @@
 	echo "Finished,";
 	if( $pointsPageTextOriginal !== $pointsPageText ){
 		echo " loading diff...\n";
-		echo Diff::load( $pointsPageTextOriginal, $pointsPageText )->getDiff();
+		Diff::load( $pointsPageTextOriginal, $pointsPageText )->printUnifiedDiff();
 	} else {
 		echo "no change.\n";
 	}

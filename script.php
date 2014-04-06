@@ -49,6 +49,7 @@
 
 	require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
 	$site = Peachy::newWiki( "livingbot" );
+	$http = new HTTP();
 
 	echo "<-- Peachy loaded, trying file -->";
 
@@ -165,29 +166,14 @@
 	}
 	$pointsPage->edit( $pointsPageText, "Bot: Updating WikiCup table", true );
 
-	$wiki->purge( 'Wikipedia:WikiCup' );
+	$site->purge( 'Wikipedia:WikiCup' );
 
 	echo "<!-- End output at " . date( 'j F Y \a\t H:i' ) . " -->";
 
-	function get( $url ) {
-		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $ch, CURLOPT_USERAGENT, 'LivingBot' );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/x-www-form-urlencoded;charset=UTF-8' ) );
-		curl_setopt( $ch, CURLOPT_HEADER, false );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0 );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
-		$response = curl_exec( $ch );
-		if( curl_errno( $ch ) ){
-			return curl_error( $ch );
-		}
-		curl_close( $ch );
-		return $response;
-	}
 
 	function getJSON( $url ) {
-		return json_decode( get( $url ), true );
+		global $http;
+		return json_decode( $http->get( $url ), true );
 	}
 
 	function getApplicableLength( $pagename, $dykname ) {

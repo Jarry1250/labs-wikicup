@@ -240,7 +240,7 @@
 		if( count( $json['entities'] ) > 0 ){
 			$qID = false;
 			foreach( $json['entities'] as $entity ){
-				$qID = $entity['id'];
+				if( isset( $entity['id'] ) ) $qID = $entity['id'];
 			}
 			if( $qID !== false ) {
 				// Grab its content and count langlinks
@@ -256,6 +256,8 @@
 						$existsOn = count( $links );
 					}
 				}
+			} else {
+				echo "Warning: $pageName does not appear on Wikidata, so assuming it doesn't qualify for a multiplicative bonus.\n";
 			}
 		}
 

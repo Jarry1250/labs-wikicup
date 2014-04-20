@@ -29,9 +29,8 @@ $numToQualifyFromMassPool = 64;
 
 // Everything below this line you probably don't
 $thisYear = date( 'Y' );
-$year = ( isset( $_GET['year'] ) && preg_match( '/^20[12][0-9]$/', $_GET['year'] ) && $year <= $thisYear )
-	? $_GET['year'] : $thisYear;
-$yearSupported = ( $year >= 2010 );
+$year = ( isset( $_GET['year'] ) && preg_match( '/^20[12][0-9]$/', $_GET['year'] ) ) ? $_GET['year'] : $thisYear;
+$yearSupported = ( $year >= 2010 && $year <= $thisYear );
 
 // Adjust points for non-current years
 if( $year < 2014 ){
@@ -64,7 +63,7 @@ require_once( '/data/project/jarry-common/public_html/global.php' );
 require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
 $site = Peachy::newWiki();
 
-$yearPage = initPage( 'Wikipedia:WikiCup/History/'.$year );
+$yearPage = initPage( 'Wikipedia:WikiCup/History/' . $year );
 if( !$yearPage->get_exists() ) die( "Bad year supplied" );
 $yearText = $yearPage->get_text();
 $pools = preg_split( '/==+ *Pool/',$yearText );

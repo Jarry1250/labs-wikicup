@@ -45,14 +45,14 @@
 	ini_set( 'display_errors', 1 );
 	error_reporting( E_ALL );
 
-	echo "<!-- Begin output at " . date( 'j F Y \a\t H:i' ) . " -->\n";
+	echo "\n<!-- Begin output at " . date( 'j F Y \a\t H:i' ) . " -->\n";
 
 	require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
 	require_once( '/data/project/jarry-common/public_html/libs/Diff.php' );
 	$site = Peachy::newWiki( "livingbot" );
 	$http = new HTTP();
 
-	echo "<-- Peachy loaded, trying file -->";
+	echo "\n<-- Peachy loaded, trying file -->";
 
 	$contestantPoints = array();
 	$pointsPageName = 'Wikipedia:WikiCup/History/' . $year;
@@ -66,7 +66,7 @@
 	$filename = __DIR__ . '/log.txt';
 	$contents = file_get_contents( $filename );
 
-	echo "<!-- File loaded, trying main process -->";
+	echo "\n<!-- File loaded, trying main process -->";
 
 	$append = ''; //log
 	foreach( $contestants as $contestant ){
@@ -169,7 +169,7 @@
 
 	$site->purge( 'Wikipedia:WikiCup' );
 
-	echo "<!-- End output at " . date( 'j F Y \a\t H:i' ) . " -->";
+	echo "\n<!-- End output at " . date( 'j F Y \a\t H:i' ) . " -->";
 
 
 	function getJSON( $url ) {

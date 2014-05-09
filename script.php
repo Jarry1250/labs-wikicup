@@ -233,6 +233,7 @@
 		// TODO: combine API queries
 		global $year;
 		$pageName = urlencode( $pageName );
+		$pageName = str_replace( '%E2%80%8E', '', $pageName ); // Strip Unicode control character (LTR)
 
 		// Find last Wikidata revision before 1 January
 		$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$pageName&props=info" );

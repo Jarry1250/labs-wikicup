@@ -213,20 +213,25 @@
 		return mb_strlen( $prose, 'UTF-8' );
 	}
 
-	function getCreationDate( $pagename ) {
+	function passesCreationDateTest( $pagename ) {
 		global $apiBase;
 
-		// Find first revision
-		$json = getJSON( $apiBase . "action=query&titles=$pagename&prop=revisions&rvdir=newer&rvlimit=1" );
+		// Find first revision before cutoff, if any
+		$cutoff = ( intval( date( 'Y' ) ) - 5 ) . '0101000000';
+		$json = getJSON( $apiBase . "action=query&titles=$pagename&rvprop=size&rvstart=$cutoff&rvlimit=1" );
+
 		if( !isset( $json['query']['pages'] ) ){
+			// No such page?
 			return false;
 		}
 		$page = array_shift( $json['query']['pages'] );
-		if( !isset( $page['revisions'], $page['revisions'][0], $page['revisions'][0]['timestamp'] ) ){
+		if( !isset( $page['revisions'], $page['revisions'][0],
+				$page['revisions'][0]['timestamp'], $page['revisions'][0]['size'] ) ){
+			// No such revision
 			return false;
 		}
 
-		return strtotime( $page['revisions'][0]['timestamp'] );
+		return ( intval( $page['revisions'][0]['size'] ) > 100 );
 	}
 
 	function getApplicableMultiplier( $pageName, $section, $line ) {
@@ -276,8 +281,7 @@
 			if( getApplicableLength( $pageName, $dykNom ) > 5100 ){
 				$preadditive += 5;
 			}
-			$creation = getCreationDate( $pageName );
-			if( $creation && $creation < strtotime( '1 January ' . ( intval( date( 'Y' ) ) - 5 ) ) ){
+			if( passesCreationDateTest( $pageName ) ){
 				$postadditive += 5;
 			}
 		}

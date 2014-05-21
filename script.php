@@ -218,15 +218,14 @@
 
 		// Find first revision before cutoff, if any
 		$cutoff = ( intval( date( 'Y' ) ) - 5 ) . '0101000000';
-		$json = getJSON( $apiBase . "action=query&titles=$pagename&rvprop=size&rvstart=$cutoff&rvlimit=1" );
+		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pagename&rvprop=size&rvstart=$cutoff&rvlimit=1" );
 
 		if( !isset( $json['query']['pages'] ) ){
 			// No such page?
 			return false;
 		}
 		$page = array_shift( $json['query']['pages'] );
-		if( !isset( $page['revisions'], $page['revisions'][0],
-				$page['revisions'][0]['timestamp'], $page['revisions'][0]['size'] ) ){
+		if( !isset( $page['revisions'], $page['revisions'][0], $page['revisions'][0]['size'] ) ){
 			// No such revision
 			return false;
 		}

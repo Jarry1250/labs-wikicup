@@ -256,7 +256,7 @@
 					if( isset( $page['revisions'] ) ){
 						$content = $page['revisions'][0]['*'];
 						$links = json_decode( $content, true );
-						$links = array_keys( $links['links'] );
+						$links = array_keys( $links['sitelinks'] );
 						$links = array_filter( $links, 'isWikipedia' );
 						$existsOn = count( $links );
 					}

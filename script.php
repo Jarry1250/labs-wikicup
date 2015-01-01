@@ -26,10 +26,10 @@
 	// column headings on the main page.
 
 	$categories = array(
-		array( 'name' => 'Featured Article', 'points' => 100, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Featured Article', 'points' => 200, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Good Article', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured List', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'Featured Picture', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Picture', 'points' => 20, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Featured Portal', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured Topic article', 'points' => 10, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Good Topic article', 'points' => 3, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
@@ -266,7 +266,7 @@
 			}
 		}
 
-		$multiplicative = 1 + ( 0.2 * floor( $existsOn / 5 ) );
+		$multiplicative = 1 + (( $existsOn > 20 ) ? 1 : 0 )) + (( $existsOn > 50 ) ? 1 : 0 ));
 
 		$preadditive = 0;
 		$postadditive = 0;

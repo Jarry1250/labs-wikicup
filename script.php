@@ -266,7 +266,7 @@
 			}
 		}
 
-		$multiplicative = 1 + (( $existsOn > 20 ) ? 1 : 0 )) + (( $existsOn > 50 ) ? 1 : 0 ));
+		$multiplicative = 1 + (( $existsOn > 20 ) ? 1 : 0 ) + (( $existsOn > 50 ) ? 1 : 0 );
 
 		$preadditive = 0;
 		$postadditive = 0;

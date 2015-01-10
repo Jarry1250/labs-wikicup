@@ -213,24 +213,32 @@
 		return mb_strlen( $prose, 'UTF-8' );
 	}
 
-	function passesCreationDateTest( $pagename ) {
+	// n.b. getApplicableAge returns 4 for all ages less than 5 for performance reasons
+	function getApplicableAge( $pagename ) {
 		global $apiBase;
 
-		// Find first revision before cutoff, if any
-		$cutoff = ( intval( date( 'Y' ) ) - 5 ) . '0101000000';
-		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pagename&rvprop=size&rvstart=$cutoff&rvlimit=1" );
+		$year = ( intval( date( 'Y' ) ) - 4 );
+		while( true ){
+			$year--;
 
-		if( !isset( $json['query']['pages'] ) ){
-			// No such page?
-			return false;
-		}
-		$page = array_shift( $json['query']['pages'] );
-		if( !isset( $page['revisions'], $page['revisions'][0], $page['revisions'][0]['size'] ) ){
-			// No such revision
-			return false;
-		}
+			// Find first revision before cutoff, if any
+			$cutoff = $year . '0101000000';
+			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pagename&rvprop=size&rvstart=$cutoff&rvlimit=1" );
 
-		return ( intval( $page['revisions'][0]['size'] ) > 100 );
+			if( !isset( $json['query']['pages'] ) ){
+				// No such page?
+				break;
+			}
+			$page = array_shift( $json['query']['pages'] );
+			if(
+				!isset( $page['revisions'], $page['revisions'][0], $page['revisions'][0]['size'] )
+				|| ( intval( $page['revisions'][0]['size'] ) <= 100 )
+			){
+				// No such revision or redirect, etc
+				break;
+			}
+		}
+		return ( intval( date( 'Y' ) ) - $year - 1 );
 	}
 
 	function getApplicableMultiplier( $pageName, $section, $line ) {
@@ -280,8 +288,9 @@
 			if( getApplicableLength( $pageName, $dykNom ) > 5100 ){
 				$preadditive += 5;
 			}
-			if( passesCreationDateTest( $pageName ) ){
-				$postadditive += 5;
+			$age = getApplicableAge( $pageName );
+			if( $age >= 5 ){
+				$postadditive += $age;
 			}
 		}
 

@@ -245,11 +245,13 @@ if( $year == $thisYear ){
 
 					$benchmark = ( count( $contribs ) == 0 ) ? 0 : max( $contribs );
 					while ( count( $contribs ) != 0 ){
-						$new = array_pop( array_values( $contribs ) );
+						$values = array_values( $contribs );
+						$new = array_pop( $values );
 						if( $new != $benchmark ){
 							break;
 						} else {
-							array_push( $top, array_pop( array_keys( $contribs ) ) );
+							$keys = array_keys( $contribs );
+							array_push( $top, array_pop( $keys ) );
 							array_pop( $contribs );
 						}
 					}
@@ -276,11 +278,13 @@ if( $year == $thisYear ){
 				$top = array();
 				$benchmark = ( count( $contribs ) == 0 ) ? 0 : max( $contribs );
 				while ( count( $contribs ) != 0 ){
-					$new = array_pop( array_values( $contribs ) );
+					$values = array_values( $contribs );
+					$new = array_pop( $values );
 					if( $new != $benchmark ){
 						break;
 					} else {
-						array_push( $top, array_pop( array_keys( $contribs ) ) );
+						$keys = array_keys( $contribs );
+						array_push( $top, array_pop( $keys ) );
 						array_pop( $contribs );
 					}
 				}

@@ -66,7 +66,7 @@ $site = Peachy::newWiki();
 $yearPage = initPage( 'Wikipedia:WikiCup/History/' . $year );
 if( !$yearPage->get_exists() ) die( "Bad year supplied" );
 $yearText = $yearPage->get_text();
-$pools = preg_split( '/==+ *Pool/',$yearText );
+$pools = preg_split( '/==+ *Group/',$yearText );
 if( count( $pools ) > 1 ) array_shift( $pools ); //clear header row if any
 
 $rounds = array();
@@ -164,7 +164,7 @@ if( $year == $thisYear ){
 				echo "<p><strong>Champion:</strong> " . $poolWinnerNames[0] . " (" . $poolWinners[ $poolWinnerNames[0] ] ."pts)</p>
 					<p><strong>Runner up:</strong> " . $poolWinnerNames[1] . " (" . $poolWinners[ $poolWinnerNames[1] ] ."pts)</p>";
 			} else {
-				echo "<p><strong>As pool leader:</strong> " . makePresentable( $poolWinners ) . "</p>
+				echo "<p><strong>As group leader:</strong> " . makePresentable( $poolWinners ) . "</p>
 		<p><strong>As \"fastest loser\":</strong> " . makePresentable( $fastestLosers ) . "</p>";
 			}
 		} else {

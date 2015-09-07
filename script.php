@@ -97,6 +97,7 @@
 					'(Multiplier\|([0-9.]+|none)\|([0-9.]+|none)\|([0-9.]+|none)\}\})?(\w)*$/', $line, $bits
 				)
 				){
+					$bits = array_filter( $bits, 'trim' );
 					$article = "[[" . $bits[1] . "]]";
 					if( in_array( $bits[1], $alreadyCounted ) ){
 						continue;
@@ -122,9 +123,13 @@
 						}
 					}
 					if( strpos( $contents, $article ) === false ){
-						$append .= "\n* $contestant ([[$contestantSubpageName|submissions]]) claimed $article as a {$categories[$i]['name']}";
+						$articleEscaped = str_replace( '[[File', '[[:File', $article );
+						$append .= "\n* $contestant ([[$contestantSubpageName|submissions]]) claimed $articleEscaped as a {$categories[$i]['name']}";
 						if( $multiplier > 1 ){
 							$append .= " with a $multiplier-times multiplier";
+						}
+						if( $categories[$i]['name'] == 'Did You Know' ){
+							$append .= " ([[:Template:Did you know nominations/$article|likely DYKNom]])";
 						}
 					}
 					$points += ( $basePoints + $preadditive );

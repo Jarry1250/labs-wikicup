@@ -122,14 +122,14 @@
 							$changed = true;
 						}
 					}
-					if( strpos( $contents, $article ) === false ){
-						$articleEscaped = str_replace( '[[File', '[[:File', $article );
+					$articleEscaped = str_replace( '[[File', '[[:File', $article );
+					if( strpos( $contents, $articleEscaped ) === false ){
 						$append .= "\n* $contestant ([[$contestantSubpageName|submissions]]) claimed $articleEscaped as a {$categories[$i]['name']}";
 						if( $multiplier > 1 ){
 							$append .= " with a $multiplier-times multiplier";
 						}
 						if( $categories[$i]['name'] == 'Did You Know' ){
-							$append .= " ([[:Template:Did you know nominations/$article|likely DYKNom]])";
+							$append .= " ([[:Template:Did you know nominations" . $bits[1] . "|likely DYKNom]])";
 						}
 					}
 					$points += ( $basePoints + $preadditive );

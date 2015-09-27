@@ -97,7 +97,7 @@
 					'(Multiplier\|([0-9.]+|none)\|([0-9.]+|none)\|([0-9.]+|none)\}\})?(\w)*$/', $line, $bits
 				)
 				){
-					$bits = array_map( $bits, 'trim' );
+					$bits = array_map( 'trim', $bits );
 					$article = "[[" . $bits[1] . "]]";
 					if( in_array( $bits[1], $alreadyCounted ) ){
 						continue;

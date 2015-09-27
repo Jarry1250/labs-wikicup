@@ -66,7 +66,7 @@
 	$filename = __DIR__ . '/log.txt';
 	$contents = file_get_contents( $filename );
 
-	echo "\n<!-- File loaded, trying main process -->";
+	echo "\n<!-- File loaded, trying main process -->";t
 
 	$append = ''; //log
 	foreach( $contestants as $contestant ){
@@ -97,7 +97,7 @@
 					'(Multiplier\|([0-9.]+|none)\|([0-9.]+|none)\|([0-9.]+|none)\}\})?(\w)*$/', $line, $bits
 				)
 				){
-					$bits = array_filter( $bits, 'trim' );
+					$bits = array_map( $bits, 'trim' );
 					$article = "[[" . $bits[1] . "]]";
 					if( in_array( $bits[1], $alreadyCounted ) ){
 						continue;

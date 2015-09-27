@@ -66,7 +66,7 @@
 	$filename = __DIR__ . '/log.txt';
 	$contents = file_get_contents( $filename );
 
-	echo "\n<!-- File loaded, trying main process -->";t
+	echo "\n<!-- File loaded, trying main process -->";
 
 	$append = ''; //log
 	foreach( $contestants as $contestant ){

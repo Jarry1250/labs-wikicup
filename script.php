@@ -129,7 +129,10 @@
 							$append .= " with a $multiplier-times multiplier";
 						}
 						if( $categories[$i]['name'] == 'Did You Know' ){
-							$append .= " ([[:Template:Did you know nominations" . $bits[1] . "|likely DYKNom]])";
+							$likelyDYK = findDYKNom( $bits[1] );
+							if( $likelyDYK !== false ){
+								$append .= " ([[:" . $likelyDYK . "|likely DYKNom]])";
+							}
 						}
 					}
 					$points += ( $basePoints + $preadditive );
@@ -328,4 +331,22 @@
 				'votewiki',
 				'wikidatawiki',
 			));
+	}
+
+	function findDYKNom( $pageName ) {
+		$firstGuess =  'Template:Did_you_know_nominations/' . $pageName;
+		if( initPage( $firstGuess )->get_exists() ){
+			return $firstGuess;
+		}
+
+		$page = initPage( $pageName );
+		$backlinks = $page->get_backlinks( 10 );
+		$backlinks = array_filter( $backlinks, function( $link ) {
+			return preg_match( '/^Template:Did you know nominations/', $link['title'] );
+		} );
+		if( count( $backlinks ) == 1 ){
+			$backlinks = array_values( $backlinks );
+			return $backlinks[0]['title'];
+		}
+		return false;
 	}

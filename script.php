@@ -3,7 +3,7 @@
 	 * Wikicup scoring bot code
 	 * Originally the work of Soxred93
 	 * Modified by Jarry1250 from December 2010
-	 * Last edit December 2013
+	 * Last edit November 2015
 	 *
 	 * This program is free software; you can redistribute it and/or modify
 	 * it under the terms of the GNU General Public License as published by

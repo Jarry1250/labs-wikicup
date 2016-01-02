@@ -27,9 +27,9 @@
 
 	$categories = array(
 		array( 'name' => 'Featured Article', 'points' => 200, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'Good Article', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Good Article', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured List', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'Featured Picture', 'points' => 20, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Picture', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Featured Portal', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured Topic article', 'points' => 10, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Good Topic article', 'points' => 3, 'lineStart' => '\#\#', 'hasMultipliers' => false ),

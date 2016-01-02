@@ -33,6 +33,10 @@ $year = ( isset( $_GET['year'] ) && preg_match( '/^20[12][0-9]$/', $_GET['year']
 $yearSupported = ( $year >= 2010 && $year <= $thisYear );
 
 // Adjust points for non-current years
+if( $year < 2016 ){
+	$points['FP'] = 20;
+	$points['GA'] = 30;
+}
 if( $year < 2014 ){
 	$points['FPO'] = 35;
 }

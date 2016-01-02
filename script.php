@@ -61,7 +61,7 @@
 
 	preg_match_all( "/\{\{(Wikipedia:WikiCup\/Participant[0-9]*)\|(.*?)\}\}/i", $pointsPageText, $contestants, PREG_PATTERN_ORDER );
 	$templatename = $contestants[1][0];
-	$contestants = $contestants[2];
+	$contestants = array_map( 'trim', $contestants[2] );
 
 	$filename = __DIR__ . '/log.txt';
 	$contents = file_get_contents( $filename );
@@ -282,7 +282,8 @@
 			}
 		}
 
-		$multiplicative = 1 + (( $existsOn > 19 ) ? 1 : 0 ) + (( $existsOn > 49 ) ? 1 : 0 );
+		// An $existsOn value of 0-4 should give a $multiplicative score of 1; 5-9 1.2; 10-14 1.4 and so on up to a maximum of 3.
+		$multiplicative = 1 + max( 2, 0.2 * floor( $existsOn / 5 ) );
 
 		$preadditive = 0;
 		$postadditive = 0;

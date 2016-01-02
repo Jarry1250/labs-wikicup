@@ -37,6 +37,9 @@ if( $year < 2016 ){
 	$points['FP'] = 20;
 	$points['GA'] = 30;
 }
+if( $year < 2015 ){
+	$points['FP'] = 35;
+}
 if( $year < 2014 ){
 	$points['FPO'] = 35;
 }
@@ -61,7 +64,7 @@ if( $year < 2011 ){
 	$categories['VP'] = 'Valued Pictures';
 	$points['VP'] = 5;
 }
-$isMassPoolMonth = in_array( date('F'), $massPoolMonths );
+$isMassPoolMonth = ( $year === $thisYear ) && in_array( date('F'), $massPoolMonths );
 
 require_once( '/data/project/jarry-common/public_html/global.php' );
 require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
@@ -145,7 +148,7 @@ if( $year == $thisYear ){
 		$poolWinners = array();
 		$fastestLosers = array();
 		foreach ( $pools as $pool ){
-			preg_match_all( "/#AAFFAA[^{]+\{\{.*?\|(.*?)}}[^']+'''(\d+)'''/", $pool, $matches );
+			preg_match_all( "/\{\{Wikipedia:WikiCup\/Participant[0-9]*\|(.*?)}}[^']+'''(\d+)'''/", $pool, $matches );
 			$contestants = array();
 			$count = count( $matches[0] );
 			for( $i = 0; $i < $count; $i++ ){
@@ -161,8 +164,9 @@ if( $year == $thisYear ){
 		}
 		arsort( $fastestLosers );
 		$fastestLosers = array_slice( $fastestLosers, 0, count( $poolWinners ) );
-		
-		if( !$isMassPoolMonth ){
+		if( $isMassPoolMonth ){
+			echo "<p><strong>Qualifying (in order):</strong> " . makePresentable( $qualifying ) . "</p>";
+		} else {
 			if( count( $pools ) === 1 ){
 				$poolWinnerNames = array_keys( $poolWinners );
 				echo "<p><strong>Champion:</strong> " . $poolWinnerNames[0] . " (" . $poolWinners[ $poolWinnerNames[0] ] ."pts)</p>
@@ -171,8 +175,6 @@ if( $year == $thisYear ){
 				echo "<p><strong>As group leader:</strong> " . makePresentable( $poolWinners ) . "</p>
 		<p><strong>As \"fastest loser\":</strong> " . makePresentable( $fastestLosers ) . "</p>";
 			}
-		} else {
-			echo "<p><strong>Qualifying (in order):</strong> " . makePresentable( $qualifying ) . "</p>";
 		}
 	?>
 		<h3>Articles created</h3>
@@ -313,7 +315,7 @@ if( $year == $thisYear ){
 		</table>
 	</div>
 	<div class="additional">
-		<p>Results by year: <a href="index.php?year=2010">2010</a> - <a href="index.php?year=2011">2011</a> - <a href="index.php?year=2012">2012</a> - <a href="index.php?year=2013">2013</a> - <a href="index.php?year=2014">2014</a></p>
+		<p>Results by year: <a href="index.php?year=2010">2010</a> - <a href="index.php?year=2011">2011</a> - <a href="index.php?year=2012">2012</a> - <a href="index.php?year=2013">2013</a> - <a href="index.php?year=2014">2014</a> - <a href="index.php?year=2015">2015</a></p>
 <?php
 	echo get_html( 'footer' );
 ?>

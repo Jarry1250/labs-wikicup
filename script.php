@@ -146,7 +146,7 @@
 		$scoreline .= $totalBonusPoints . '||';
 		$scoreline .= "'''$totalPoints'''";
 
-		preg_match( '/\{\{' . str_replace( "/", "\/", preg_quote( $templatename ) ) . '\|' . str_replace( "/", "\/", preg_quote( $contestant ) ) . "}}[^']+'''\d+'''/i", $pointsPageText, $n );
+		preg_match( '/\{\{' . str_replace( "/", "\/", preg_quote( $templatename ) ) . '\| *' . str_replace( "/", "\/", preg_quote( $contestant ) ) . " *}}[^']+'''\d+'''/i", $pointsPageText, $n );
 		if( $n[0] == $scoreline ){
 			echo "No change\n";
 		} else {

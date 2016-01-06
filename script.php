@@ -283,7 +283,7 @@
 		}
 
 		// An $existsOn value of 0-4 should give a $multiplicative score of 1; 5-9 1.2; 10-14 1.4 and so on up to a maximum of 3.
-		$multiplicative = 1 + max( 2, 0.2 * floor( $existsOn / 5 ) );
+		$multiplicative = 1 + min( 2, 0.2 * floor( $existsOn / 5 ) );
 
 		$preadditive = 0;
 		$postadditive = 0;

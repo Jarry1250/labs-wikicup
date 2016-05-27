@@ -38,7 +38,7 @@
 		array( 'name' => 'Good Article Review', 'points' => 4, 'lineStart' => '\#', 'hasMultipliers' => false ),
 	);
 	$year = date( 'Y' );
-	$apiBase = 'http://en.wikipedia.org/w/api.php?format=json&';
+	$apiBase = 'https://en.wikipedia.org/w/api.php?format=json&';
 
 	// Other stuff
 	ini_set( 'memory_limit', '16M' );

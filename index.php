@@ -124,7 +124,12 @@ function getFromCache( Page &$page ){
 	$filename = '/data/project/wikicup/public_html/cache/' . md5( $page->get_title() ) . '.txt';
 	if( file_exists( $filename ) ) {
 		// Cache HIT
-		return file_get_contents( $filename );
+		if( isset( $_GET['cache'] ) && $_GET['cache'] === 'purge' ) {
+			// Delete the cache
+			unlink( $filename );
+		} else {
+			return file_get_contents( $filename );
+		}
 	}
 	// Cache MISS
 	$text = $page->get_text();

@@ -187,10 +187,34 @@
 
 	function getApplicableLength( $pagename, $dykname ) {
 		global $apiBase;
-		// Get timestamp of promotionplus 12 hours
-		$json = getJSON( $apiBase . "action=query&titles=" . urlencode( $dykname ) . "&prop=revisions" );
-		$page = array_shift( $json['query']['pages'] );
-		$timestamp = date( 'YmdHis', strtotime( $page['revisions'][0]['timestamp'] ) + ( 12 * 60 * 60 ) );
+		$pagename = str_replace( '_', ' ', $pagename );
+
+		// Working out when a DYK appeared on the mainpage is remarkably difficult...
+		$json = getJSON( $apiBase . "action=query&list=backlinks&blnamespace=4&bltitle=" . $pagename );
+		$backlinks = $json['query']['backlinks'];
+		$timestamp = false;
+		foreach( $backlinks as $backlink ) {
+			if( preg_match( '/^Wikipedia:Recent additions/', $backlink['title'] ) ) {
+				$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $backlink['title'] ) . "&rvprop=content&rvlimit=1" );
+				$page = array_shift( $json['query']['pages'] );
+				$text = str_replace( '_', ' ', $page['revisions'][0]['*'] );
+				$bits = explode( '===', $text );
+				foreach( $bits as $bit ) {
+					if ( stripos( $bit, "'''[[$pagename" ) !== false
+					     && preg_match( "/'''''(.*?) \(UTC\)'''''/", $bit, $matches ) 	) {
+						$timestamp = date( 'YmdHis', strtotime( $matches[1]  ) );
+						break;
+					}
+				}
+			}
+		}
+
+		if( $timestamp === false ) {
+			// Fall back to assumption of promotion plus 12 hours
+			$json = getJSON( $apiBase . "action=query&titles=" . urlencode( $dykname ) . "&prop=revisions" );
+			$page = array_shift( $json['query']['pages'] );
+			$timestamp = date( 'YmdHis', strtotime( $page['revisions'][0]['timestamp'] ) + ( 12 * 60 * 60 ) );
+		}
 
 		// Get revid or article at that time
 		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pagename&rvprop=ids&rvstart=$timestamp&rvlimit=1" );
@@ -200,6 +224,7 @@
 		// Count prose size of article at that time
 		$json = getJSON( $apiBase . "action=parse&oldid=$revId&prop=text&disablepp" );
 		$text = str_replace( "\n", "", $json['parse']['text']['*'] );
+
 		$tagsToStrip = array( 'div', 'ul', 'sub', 'sup' );
 		foreach( $tagsToStrip as $tagToStrip ){
 			$regex = "/[<]" . $tagToStrip . ".*?[<]\/" . $tagToStrip . "[>]/";
@@ -217,7 +242,6 @@
 			$para = preg_replace( '/\[[0-9]{1,3}\]/', '', $para );
 		}
 		$prose = implode( '', $paras );
-		echo mb_strlen( $prose, 'UTF-8' );
 		return mb_strlen( $prose, 'UTF-8' );
 	}
 

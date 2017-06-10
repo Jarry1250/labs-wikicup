@@ -201,9 +201,12 @@
 				$text = str_replace( '_', ' ', $page['revisions'][0]['*'] );
 				$bits = explode( '===', $text );
 				foreach( $bits as $bit ) {
-					if ( stripos( $bit, "'''[[$pagename" ) !== false
-					     && preg_match( "/'''''(.*?) \(UTC\)'''''/", $bit, $matches ) 	) {
-						$timestamp = date( 'YmdHis', strtotime( $matches[1]  ) );
+					$altPagename = str_replace( ' ', '_', $pagename );
+					$altPagename2 = str_replace( '_', ' ', $pagename );
+					if ( ( stripos( $bit, "'''[[$pagename" ) !== false || stripos( $bit, "'''[[$altPagename2" ) !== false
+					     || stripos( $bit, "'''[[$altPagename2" ) !== false )
+					     && preg_match( "/'''''(.*?) \(UTC\)'''''/", $bit, $matches ) ) {
+						$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
 						break;
 					}
 				}

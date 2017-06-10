@@ -226,27 +226,23 @@
 		$revId = $page['revisions'][0]['revid'];
 
 		// Count prose size of article at that time
-		$json = getJSON( $apiBase . "action=parse&oldid=$revId&prop=text&disablepp" );
+		$json = getJSON( $apiBase . "action=parse&oldid=$revId&prop=text" );
 		$text = str_replace( "\n", "", $json['parse']['text']['*'] );
+		$text = html_entity_decode( $text );
 
-		$tagsToStrip = array( 'div', 'ul', 'sub', 'sup' );
-		foreach( $tagsToStrip as $tagToStrip ){
-			$regex = "/[<]" . $tagToStrip . ".*?[<]\/" . $tagToStrip . "[>]/";
-			while( preg_match( $regex, $text ) ){
-				$text = preg_replace( $regex, '', $text );
-			}
-		}
-		$paras = preg_split( '/<p[> ]/', $text );
-		array_shift( $paras );
-		foreach( $paras as &$para ){
-			list( $para, ) = explode( '</p>', $para, 2 );
+		preg_match_all( '/<p( [^>]+)?>.*?<\/p>/', $text, $paras );
+		$count = 0;
+		foreach( $paras[0] as $para ){
+			// <sub> and <sup> should be removed in their entirety
+			$para = preg_replace( '/[<]su(b|p).*?[>].*?[<]\/su(b|p)[>]/', '', $para );
+
+			// For everything else, retain innerHTML
 			while( preg_match( '/[<].*?[>]/', $para ) ){
 				$para = preg_replace( '/[<].*?[>]/', '', $para );
 			}
-			$para = preg_replace( '/\[[0-9]{1,3}\]/', '', $para );
+			$count += mb_strlen( $para, 'UTF-8' );
 		}
-		$prose = implode( '', $paras );
-		return mb_strlen( $prose, 'UTF-8' );
+		return $count;
 	}
 
 	// n.b. getApplicableAge returns 4 for all ages less than 5 for performance reasons

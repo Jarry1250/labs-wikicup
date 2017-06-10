@@ -187,10 +187,11 @@
 
 	function getApplicableLength( $pagename, $dykname ) {
 		global $apiBase;
-		$pagename = str_replace( '_', ' ', $pagename );
+		$encodedPagename = urlencode( $pagename );
+		$encodedDykName = urlencode( $dykname );
 
 		// Working out when a DYK appeared on the mainpage is remarkably difficult...
-		$json = getJSON( $apiBase . "action=query&list=backlinks&blnamespace=4&bltitle=" . $pagename );
+		$json = getJSON( $apiBase . "action=query&list=backlinks&blnamespace=4&bltitle=" . $encodedPagename );
 		$backlinks = $json['query']['backlinks'];
 		$timestamp = false;
 		foreach( $backlinks as $backlink ) {
@@ -211,13 +212,13 @@
 
 		if( $timestamp === false ) {
 			// Fall back to assumption of promotion plus 12 hours
-			$json = getJSON( $apiBase . "action=query&titles=" . urlencode( $dykname ) . "&prop=revisions" );
+			$json = getJSON( $apiBase . "action=query&titles=$encodedDykName&prop=revisions" );
 			$page = array_shift( $json['query']['pages'] );
 			$timestamp = date( 'YmdHis', strtotime( $page['revisions'][0]['timestamp'] ) + ( 12 * 60 * 60 ) );
 		}
 
 		// Get revid or article at that time
-		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pagename&rvprop=ids&rvstart=$timestamp&rvlimit=1" );
+		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$encodedPagename&rvprop=ids&rvstart=$timestamp&rvlimit=1" );
 		$page = array_shift( $json['query']['pages'] );
 		$revId = $page['revisions'][0]['revid'];
 
@@ -255,7 +256,7 @@
 
 			// Find first revision before cutoff, if any
 			$cutoff = $year . '0101000000';
-			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$pagename&rvprop=size&rvstart=$cutoff&rvlimit=1" );
+			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $pagename ) . "&rvprop=size&rvstart=$cutoff&rvlimit=1" );
 
 			if( !isset( $json['query']['pages'] ) ){
 				// No such page?
@@ -276,11 +277,12 @@
 	function getApplicableMultiplier( $pageName, $section, $line ) {
 		// TODO: combine API queries
 		global $year;
-		$pageName = urlencode( $pageName );
-		$pageName = str_replace( '%E2%80%8E', '', $pageName ); // Strip Unicode control character (LTR)
+		$encodedPageName = urlencode( $pageName );
+		$encodedPageName = str_replace( '%E2%80%8E', '', $encodedPageName ); // Strip Unicode control character (LTR)
+		$pageName = urldecode( $encodedPageName );
 
 		// Find last Wikidata revision before 1 January
-		$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$pageName&props=info" );
+		$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$encodedPageName&props=info" );
 		$existsOn = 0; // Didn't even exist on Wikidata
 		if( count( $json['entities'] ) > 0 ){
 			$qID = false;
@@ -316,7 +318,7 @@
 			if( isset( $bits[0] ) ){
 				$dykNom = $bits[0];
 			} else {
-				$dykNom = "Template:Did you know nominations/" . urldecode( $pageName );
+				$dykNom = "Template:Did you know nominations/" . $pageName;
 			}
 			if( getApplicableLength( $pageName, $dykNom ) > 5100 ){
 				$preadditive += 5;

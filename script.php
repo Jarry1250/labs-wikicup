@@ -94,7 +94,7 @@
 				if( preg_match(
 					'/^' . $categories[$i]['lineStart'] .
 					" *'*\[\[(.*?)(\]|\|).*?" .
-					'(Multiplier\|([0-9.]+|none)\|([0-9.]+|none)\|([0-9.]+|none)\}\})?(\w)*$/', $line, $bits
+					'(Multiplier\|([0-9.]+|none)\|([0-9.]+|none)\|([0-9.]+|none)\}\})?.*$/', $line, $bits
 				)
 				){
 					$bits = array_map( 'trim', $bits );

@@ -250,6 +250,7 @@
 		global $apiBase;
 
 		$year = ( intval( date( 'Y' ) ) - 4 );
+		$lastQualifyingYear = $year;
 		while( true ){
 			$year--;
 
@@ -262,15 +263,15 @@
 				break;
 			}
 			$page = array_shift( $json['query']['pages'] );
-			if(
-				!isset( $page['revisions'], $page['revisions'][0], $page['revisions'][0]['size'] )
-				|| ( intval( $page['revisions'][0]['size'] ) <= 100 )
-			){
+			if(	!isset( $page['revisions'], $page['revisions'][0], $page['revisions'][0]['size'] ) ){
 				// No such revision or redirect, etc
 				break;
 			}
+			if( intval( $page['revisions'][0]['size'] ) >= 100 ) {
+				$lastQualifyingYear = $year;
+			}
 		}
-		return ( intval( date( 'Y' ) ) - $year - 1 );
+		return ( intval( date( 'Y' ) ) - $lastQualifyingYear );
 	}
 
 	function getApplicableMultiplier( $pageName, $section, $line ) {

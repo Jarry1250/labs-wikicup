@@ -201,12 +201,12 @@
 				$page = array_shift( $json['query']['pages'] );
 				$text = str_replace( '_', ' ', $page['revisions'][0]['*'] );
 				$bits = explode( '===', $text );
-				foreach( $bits as $bit ) {
+				for( $i = 0; $i < count( $bits ); $i++ ) {
 					$altPagename = str_replace( ' ', '_', $pagename );
 					$altPagename2 = str_replace( '_', ' ', $pagename );
-					if ( ( stripos( $bit, "'''[[$pagename" ) !== false || stripos( $bit, "'''[[$altPagename2" ) !== false
-					     || stripos( $bit, "'''[[$altPagename2" ) !== false )
-					     && preg_match( "/'''''(.*?) \(UTC\)'''''/", $bit, $matches ) ) {
+					if ( ( stripos( $bits[$i], "'''[[$altPagename" ) !== false || stripos( $bits[$i], "'''[[$altPagename2" ) !== false
+					     || stripos( $bits[$i], "'''[[$altPagename2" ) !== false )
+					     && preg_match( "/'''''(.*?) \(UTC\)'''''/", $bits[$i + 1], $matches ) ) {
 						$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
 						break;
 					}

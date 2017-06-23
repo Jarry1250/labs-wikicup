@@ -321,7 +321,13 @@ if( $year == $thisYear ){
 		</table>
 	</div>
 	<div class="additional">
-		<p>Results by year: <a href="index.php?year=2010">2010</a> - <a href="index.php?year=2011">2011</a> - <a href="index.php?year=2012">2012</a> - <a href="index.php?year=2013">2013</a> - <a href="index.php?year=2014">2014</a> - <a href="index.php?year=2015">2015</a></p>
+
+		<p>Results by year: <?php
+			$years = array();
+			for( $i = 2010; $i <= intval( $thisYear ); $i++ ) {
+				$years[] = "<a href=\"index.php?year=$i\">$i</a>";
+			}
+			echo implode( ' - ', $years ); ?></p>
 <?php
 	echo get_html( 'footer' );
 ?>

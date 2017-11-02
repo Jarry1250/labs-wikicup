@@ -206,7 +206,14 @@ if( $year == $thisYear ){
 					$class= "alt";
 				}
 				echo "<tr>\n<th class='$class'>Round $i</th>\n";
-				foreach( $round as $category ) echo "<td class='$class'>" . $category['total'] . "</td>\n";
+				foreach( $round as $key => $category ) {
+					if( $key == 'DYK' && $year >= 2013 ) {
+						// Needs a proper fix but will do for now
+						echo "<td class='$class'>" . ceil( $category['total'] / 2 ) . "-" . $category['total'] . "</td>\n";
+					} else {
+						echo "<td class='$class'>" . $category['total'] . "</td>\n";
+					}
+				}
 				echo "</tr>\n";
 			}
 			if( ++$i % 2 == 1 ){
@@ -216,7 +223,12 @@ if( $year == $thisYear ){
 			}
 			echo "<tr>\n<th class='$class'>Total</th>\n";
 			foreach ( $totals as $key => $total ){
-				echo "<td class='$class'>" . $total['total'] . "</td>\n";
+				if( $key == 'DYK' && $year >= 2013 ) {
+					// Needs a proper fix but will do for now
+					echo "<td class='$class'>" . ceil( $total['total'] / 2 ) . "-" . $total['total'] . "</td>\n";
+				} else {
+					echo "<td class='$class'>" . $total['total'] . "</td>\n";
+				}
 			}
 			echo "</tr>";
 		?>
@@ -250,7 +262,7 @@ if( $year == $thisYear ){
 					$class= "alt";
 				}
 				echo "<tr>\n<th class='$class'>Round $i</th>\n";
-				foreach ( $round as $category => $contribs ){
+				foreach ( $round as $key => $contribs ){
 					unset( $contribs['total'] );
 					asort( $contribs );
 					$top = array();
@@ -266,6 +278,9 @@ if( $year == $thisYear ){
 							array_push( $top, array_pop( $keys ) );
 							array_pop( $contribs );
 						}
+					}
+					if( $key == 'DYK' && $year >= 2013 ) {
+						$benchmark = ceil( $benchmark / 2 ) . "-" . $benchmark;
 					}
 					$num = count( $top );
 					if( $num > 0 && $num < 4 ) { 
@@ -300,7 +315,9 @@ if( $year == $thisYear ){
 						array_pop( $contribs );
 					}
 				}
-				
+				if( $key == 'DYK' && $year >= 2013 ) {
+					$benchmark = ceil( $benchmark / 2 ) . "-" . $benchmark;
+				}
 				$num = count( $top );
 				if( $num > 0 && $num < 4 ) { 
 					echo "<td class='$class'>" . implode( ", ", $top ) . " ($benchmark)</td>\n";
@@ -330,4 +347,3 @@ if( $year == $thisYear ){
 			echo implode( ' - ', $years ); ?></p>
 <?php
 	echo get_html( 'footer' );
-?>

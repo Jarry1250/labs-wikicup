@@ -203,6 +203,7 @@
 				// Wierdly we want the timestamp after and not before...
 				if( preg_match("/" . preg_quote( str_replace( '_', ' ', $pagename ) ) . ".*?'''''(.*?) \(UTC\)'''''/is", $text, $matches ) ) {
 					$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
+					break;
 				}
 			}
 		}

@@ -200,20 +200,12 @@
 				$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $backlink['title'] ) . "&rvprop=content&rvlimit=1" );
 				$page = array_shift( $json['query']['pages'] );
 				$text = str_replace( '_', ' ', $page['revisions'][0]['*'] );
-				$bits = explode( '===', $text );
-				for( $i = 0; $i < count( $bits ); $i++ ) {
-					$altPagename = str_replace( ' ', '_', $pagename );
-					$altPagename2 = str_replace( '_', ' ', $pagename );
-					if ( ( stripos( $bits[$i], "'''[[$altPagename" ) !== false || stripos( $bits[$i], "'''[[$altPagename2" ) !== false
-					     || stripos( $bits[$i], "'''[[$altPagename2" ) !== false )
-					     && preg_match( "/'''''(.*?) \(UTC\)'''''/", $bits[$i + 1], $matches ) ) {
-						$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
-						break;
-					}
+				// Wierdly we want the timestamp after and not before...
+				if( preg_match("/" . preg_quote( str_replace( '_', ' ', $pagename ) ) . ".*?'''''(.*?) \(UTC\)'''''/is", $text, $matches ) ) {
+					$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
 				}
 			}
 		}
-
 		if( $timestamp === false ) {
 			// Fall back to assumption of promotion plus 12 hours
 			$json = getJSON( $apiBase . "action=query&titles=$encodedDykName&prop=revisions" );

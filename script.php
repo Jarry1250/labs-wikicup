@@ -200,8 +200,10 @@
 				$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $backlink['title'] ) . "&rvprop=content&rvlimit=1" );
 				$page = array_shift( $json['query']['pages'] );
 				$text = str_replace( '_', ' ', $page['revisions'][0]['*'] );
+				$bits = explode( str_replace( '_', ' ', $pagename ), $text, 2 );
+
 				// Wierdly we want the timestamp after and not before...
-				if( preg_match("/" . preg_quote( str_replace( '_', ' ', $pagename ) ) . ".*?'''''(.*?) \(UTC\)'''''/is", $text, $matches ) ) {
+				if( count( $bits ) > 1 && preg_match("/'''''([^']+) \(UTC\)'''''/i", $bits[1], $matches ) ) {
 					$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
 					break;
 				}

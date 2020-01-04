@@ -3,7 +3,7 @@
 	 * Wikicup scoring bot code
 	 * Originally the work of Soxred93
 	 * Modified by Jarry1250 from December 2010
-	 * Last edit May 2018
+	 * Last edit January 2020
 	 *
 	 * This program is free software; you can redistribute it and/or modify
 	 * it under the terms of the GNU General Public License as published by
@@ -27,15 +27,15 @@
 
 	$categories = array(
 		array( 'name' => 'Featured Article', 'points' => 200, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'Good Article', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured List', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured Picture', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => false ),
-		array( 'name' => 'Featured Portal', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'Featured Topic article', 'points' => 10, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
-		array( 'name' => 'Good Topic article', 'points' => 3, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Topic article', 'points' => 15, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Article Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Good Article', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Good Topic article', 'points' => 5, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Good Article Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Did You Know', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'In the News article', 'points' => 10, 'lineStart' => '\#', 'hasMultipliers' => false ),
-		array( 'name' => 'Good Article Review', 'points' => 4, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'In the News article', 'points' => 12, 'lineStart' => '\#', 'hasMultipliers' => false ),
 	);
 	$year = date( 'Y' );
 	$apiBase = 'https://en.wikipedia.org/w/api.php?format=json&';

@@ -21,9 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
 // These you might want to change
-$categories = array( 'FA' => 'Featured Article', 'GA' => 'Good Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FPO' => 'Featured Portal', 'FT' => 'Featured Topic article', 'GT' => 'Good Topic article', 'DYK' => 'Did You Know', 'ITN' => 'In the News article', 'GAR' => 'Good Article Review' );
-$points = array('FA' => 200, 'GA' => 35, 'FL' => 45, 'FP' => 30, 'FPO' => 45, 'FT' => 10, 'GT' => 3, 'DYK' => 5, 'ITN' => 10, 'GAR' => 4);
-$totals = array( 'FA' => 0, 'GA' => 0, 'FL' => 0, 'FP' => 0, 'FPO' => 0, 'FT' => 0, 'GT' => 0, 'DYK' => 0, 'ITN' => 0, 'GAR' => 0 );
+$categories = array( 'FA' => 'Featured Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FT' => 'Featured Topic article', 'FAR' => 'Featured Article Review', 'GA' => 'Good Article', 'GT' => 'Good Topic article', 'GAR' => 'Good Article Review', 'DYK' => 'Did You Know', 'ITN' => 'In the News article' );
+$points = array( 'FA' => 200, 'FL' => 45, 'FP' => 30, 'FT' => 15, 'FAR' => 5, 'GA' => 35, 'GT' => 5, 'GAR' => 5, 'DYK' => 5, 'ITN' => 12 );
 $massPoolMonths = array( 'January', 'February' );
 $numToQualifyFromMassPool = 64;
 
@@ -33,6 +32,10 @@ $year = ( isset( $_GET['year'] ) && preg_match( '/^20[12][0-9]$/', $_GET['year']
 $yearSupported = ( $year >= 2010 && $year <= $thisYear );
 
 // Adjust points for non-current years
+if( $year < 2020 ){
+	$categories = array( 'FA' => 'Featured Article', 'GA' => 'Good Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FPO' => 'Featured Portal', 'FT' => 'Featured Topic article', 'GT' => 'Good Topic article', 'DYK' => 'Did You Know', 'ITN' => 'In the News article', 'GAR' => 'Good Article Review' );
+	$points = array('FA' => 200, 'GA' => 35, 'FL' => 45, 'FP' => 30, 'FPO' => 45, 'FT' => 10, 'GT' => 3, 'DYK' => 5, 'ITN' => 10, 'GAR' => 4);
+}
 if( $year < 2016 ){
 	$points['FP'] = 20;
 	$points['GA'] = 30;

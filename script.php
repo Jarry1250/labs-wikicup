@@ -44,6 +44,7 @@
 	ini_set( 'memory_limit', '16M' );
 	ini_set( 'display_errors', 1 );
 	error_reporting( E_ALL );
+	$debug = ( isset( $_GET['debug'] ) && $_GET['debug'] == 'y' );
 
 	echo "\n<!-- Begin output at " . date( 'j F Y \a\t H:i' ) . " -->\n";
 
@@ -157,14 +158,14 @@
 		if( $changed ){
 			echo "Loading multiplier assessment diff...\n";
 			Diff::load( $contestantSubmissionsOriginal, $contestantSubmissions )->printUnifiedDiff();
-			$page->edit( $contestantSubmissions, "Bot: Assessing multipliers due. ([[WP:CUPSUGGEST|Stuck for what to work on?]])" );
+			if( !$debug ) $page->edit( $contestantSubmissions, "Bot: Assessing multipliers due. ([[WP:CUPSUGGEST|Stuck for what to work on?]])" );
 		}
 	}
 
 	if( strlen( $append ) > 0 ){
 		file_put_contents( $filename, $append, FILE_APPEND );
 		$logPage = initPage( 'Wikipedia:WikiCup/History/' . $year . '/log' );
-		$logPage->edit( "\n" . trim( $append ), "Bot: adding new claims to the list", true, true, false, "ap" );
+		if( !$debug ) $logPage->edit( "\n" . trim( $append ), "Bot: adding new claims to the list", true, true, false, "ap" );
 	}
 
 	echo "Finished,";
@@ -174,7 +175,7 @@
 	} else {
 		echo "no change.\n";
 	}
-	$pointsPage->edit( $pointsPageText, "Bot: Updating WikiCup table", true );
+	if( !$debug ) $pointsPage->edit( $pointsPageText, "Bot: Updating WikiCup table", true );
 
 	$site->purge( 'Wikipedia:WikiCup' );
 
@@ -187,9 +188,11 @@
 	}
 
 	function getApplicableLength( $pagename, $dykname ) {
-		global $apiBase;
 		$encodedPagename = urlencode( $pagename );
 		$encodedDykName = urlencode( $dykname );
+		global $apiBase, $debug;
+
+		if( $debug ) echo "Getting applicable length for $pageName...\n";
 
 		// Working out when a DYK appeared on the mainpage is remarkably difficult...
 		$json = getJSON( $apiBase . "action=query&list=backlinks&blnamespace=4&bltitle=" . $encodedPagename );
@@ -216,10 +219,14 @@
 			$timestamp = date( 'YmdHis', strtotime( $page['revisions'][0]['timestamp'] ) + ( 12 * 60 * 60 ) );
 		}
 
+		if( $debug ) echo "Found timestamp $timestamp...\n";
+
 		// Get revid or article at that time
 		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$encodedPagename&rvprop=ids&rvstart=$timestamp&rvlimit=1" );
 		$page = array_shift( $json['query']['pages'] );
 		$revId = $page['revisions'][0]['revid'];
+
+		if( $debug ) echo "Using revid $revId...\n";
 
 		// Count prose size of article at that time
 		$json = getJSON( $apiBase . "action=parse&oldid=$revId&prop=text" );
@@ -238,6 +245,7 @@
 			}
 			$count += mb_strlen( $para, 'UTF-8' );
 		}
+		if( $debug ) echo "Found length $count...\n";
 		return $count;
 	}
 
@@ -272,10 +280,11 @@
 
 	function getApplicableMultiplier( $pageName, $section, $line ) {
 		// TODO: combine API queries
-		global $year;
+		global $year, $debug;
 		$encodedPageName = urlencode( $pageName );
 		$encodedPageName = str_replace( '%E2%80%8E', '', $encodedPageName ); // Strip Unicode control character (LTR)
 		$pageName = urldecode( $encodedPageName );
+		if( $debug ) echo "Getting applicable multipliers for $pageName...\n";
 
 		// Find last Wikidata revision before 1 January
 		$json = getJSON( "https://www.wikidata.org/w/api.php?format=json&action=wbgetentities&sites=enwiki&titles=$encodedPageName&props=info" );
@@ -325,6 +334,7 @@
 			}
 		}
 
+		if( $debug ) echo "Setting applicable multipliers for $pageName as ( $multiplicative, $preadditive, $postadditive )...\n";
 		return array( $multiplicative, $preadditive, $postadditive );
 	}
 

@@ -187,15 +187,15 @@
 		return json_decode( $http->get( $url ), true );
 	}
 
-	function getApplicableLength( $pagename, $dykname ) {
-		$encodedPagename = urlencode( $pagename );
-		$encodedDykName = urlencode( $dykname );
+	function getApplicableLength( $pageName, $dykName ) {
 		global $apiBase, $debug;
+		$encodedPageName = urlencode( $pageName );
+		$encodedDykName = urlencode( $dykName );
 
 		if( $debug ) echo "Getting applicable length for $pageName...\n";
 
 		// Working out when a DYK appeared on the mainpage is remarkably difficult...
-		$json = getJSON( $apiBase . "action=query&list=backlinks&blnamespace=4&bltitle=" . $encodedPagename );
+		$json = getJSON( $apiBase . "action=query&list=backlinks&blnamespace=4|10&bllimit=500&bltitle=" . $encodedPageName );
 		$backlinks = $json['query']['backlinks'];
 		$timestamp = false;
 		foreach( $backlinks as $backlink ) {
@@ -203,7 +203,7 @@
 				$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $backlink['title'] ) . "&rvprop=content&rvlimit=1" );
 				$page = array_shift( $json['query']['pages'] );
 				$text = str_replace( '_', ' ', $page['revisions'][0]['*'] );
-				$bits = explode( str_replace( '_', ' ', $pagename ), $text, 2 );
+				$bits = explode( str_replace( '_', ' ', $pageName ), $text, 2 );
 
 				// Wierdly we want the timestamp after and not before...
 				if( count( $bits ) > 1 && preg_match("/'''''([^']+) \(UTC\)'''''/i", $bits[1], $matches ) ) {
@@ -222,7 +222,7 @@
 		if( $debug ) echo "Found timestamp $timestamp...\n";
 
 		// Get revid or article at that time
-		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$encodedPagename&rvprop=ids&rvstart=$timestamp&rvlimit=1" );
+		$json = getJSON( $apiBase . "action=query&prop=revisions&titles=$encodedPageName&rvprop=ids&rvstart=$timestamp&rvlimit=1" );
 		$page = array_shift( $json['query']['pages'] );
 		$revId = $page['revisions'][0]['revid'];
 
@@ -250,7 +250,7 @@
 	}
 
 	// n.b. getApplicableAge returns 4 for all ages less than 5 for performance reasons
-	function getApplicableAge( $pagename ) {
+	function getApplicableAge( $pageName ) {
 		global $apiBase;
 
 		$year = ( intval( date( 'Y' ) ) - 4 );
@@ -260,7 +260,7 @@
 
 			// Find first revision before cutoff, if any
 			$cutoff = $year . '0101000000';
-			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $pagename ) . "&rvprop=size&rvstart=$cutoff&rvlimit=1" );
+			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=" . urlencode( $pageName ) . "&rvprop=size&rvstart=$cutoff&rvlimit=1" );
 
 			if( !isset( $json['query']['pages'] ) ){
 				// No such page?

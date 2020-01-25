@@ -52,6 +52,7 @@
 	require_once( '/data/project/jarry-common/public_html/libs/Diff.php' );
 	$site = Peachy::newWiki( "livingbot" );
 	$http = new HTTP();
+	$currentDykBatchLiveTime = false;
 
 	echo "\n<-- Peachy loaded, trying file -->";
 
@@ -210,6 +211,10 @@
 					$timestamp = date( 'YmdHis', strtotime( $matches[1] ) );
 					break;
 				}
+			} elseif ( $backlink['title'] == 'Template:Did you know' ) {
+				// Currently on the mainpage, so hasn't shown up in Recent additions yhet
+				$timestamp = getCurrentDykBatchLiveTime();
+				break;
 			}
 		}
 		if( $timestamp === false ) {
@@ -382,4 +387,18 @@
 			return $backlinks[0]['title'];
 		}
 		return false;
+	}
+
+	function getCurrentDykBatchLiveTime() {
+		global $apiBase, $currentDykBatchLiveTime;
+		if ( !$currentDykBatchLiveTime ) {
+			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=Wikipedia:Recent%20additions&rvprop=content&rvlimit=1" );
+			$page = array_shift( $json['query']['pages'] );
+			$text = $page['revisions'][0]['*'];
+			preg_match( "/'''''([^']+) \(UTC\)'''''/i", $text, $matches );
+
+			// The first timestamp on Recent additions equates to the time the current batch went live (weirdly)
+			$currentDykBatchLiveTime = date( 'YmdHis', strtotime( $matches[1] ) );
+		}
+		return $currentDykBatchLiveTime;
 	}

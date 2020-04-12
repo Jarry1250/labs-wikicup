@@ -23,13 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 // These you might want to change
 $categories = array( 'FA' => 'Featured Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FT' => 'Featured Topic article', 'FAR' => 'Featured Article Review', 'GA' => 'Good Article', 'GT' => 'Good Topic article', 'GAR' => 'Good Article Review', 'DYK' => 'Did You Know', 'ITN' => 'In the News article' );
 $points = array( 'FA' => 200, 'FL' => 45, 'FP' => 30, 'FT' => 15, 'FAR' => 5, 'GA' => 35, 'GT' => 5, 'GAR' => 5, 'DYK' => 5, 'ITN' => 12 );
-$massPoolMonths = array( 'January', 'February' );
-$numToQualifyFromMassPool = 64;
+$numToQualifyFromMassPool = array( 'January' => 64, 'February' => 64, 'March' => 32, 'April' => 32 );
 
 // Everything below this line you probably don't
 $thisYear = date( 'Y' );
 $year = ( isset( $_GET['year'] ) && preg_match( '/^20[12][0-9]$/', $_GET['year'] ) ) ? $_GET['year'] : $thisYear;
 $yearSupported = ( $year >= 2010 && $year <= $thisYear );
+$isMassPoolMonth = ( $year === $thisYear ) && isset( $numToQualifyFromMassPool[ date('F') ] );
 
 // Adjust points for non-current years
 if( $year < 2020 ){
@@ -68,7 +68,6 @@ if( $year < 2011 ){
 	$categories['VP'] = 'Valued Pictures';
 	$points['VP'] = 5;
 }
-$isMassPoolMonth = ( $year === $thisYear ) && in_array( date('F'), $massPoolMonths );
 
 require_once( '/data/project/jarry-common/public_html/global.php' );
 require_once( '/data/project/jarry-common/public_html/peachy/Init.php' );
@@ -165,7 +164,7 @@ if( $year == $thisYear ){
 			}
 			arsort( $contestants );
 			if( $isMassPoolMonth ){
-				$qualifying = array_slice( $contestants, 0, $numToQualifyFromMassPool );
+				$qualifying = array_slice( $contestants, 0, $numToQualifyFromMassPool[date('F')] );
 			} else {
 				$poolWinners = array_merge( $poolWinners, array_slice( $contestants, 0, 2 ) );
 				$fastestLosers = array_merge( $fastestLosers,  array_slice( $contestants, 2 ) );

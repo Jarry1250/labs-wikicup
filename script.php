@@ -126,7 +126,7 @@
 						}
 					}
 					$articleEscaped = str_replace( '[[File', '[[:File', $article );
-					if( strpos( $contents, $articleEscaped ) === false ){
+					if( strpos( $contents, "$articleEscaped as a {$categories[$i]['name']}" ) === false ){
 						$append .= "\n* $contestant ([[$contestantSubpageName|submissions]]) claimed $articleEscaped as a {$categories[$i]['name']}";
 						if( $multiplier > 1 ){
 							$append .= " with a $multiplier-times multiplier";

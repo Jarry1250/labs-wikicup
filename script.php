@@ -3,7 +3,7 @@
 	 * Wikicup scoring bot code
 	 * Originally the work of Soxred93
 	 * Modified by Jarry1250 from December 2010
-	 * Last edit January 2020
+	 * Last edit January 2022
 	 *
 	 * This program is free software; you can redistribute it and/or modify
 	 * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,7 @@
 	 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 	 */
 
-	// Things you might actually want to change. For the first six, the
-	// order is what is important, the names are only for readability. The
+	// Things you might actually want to change. The
 	// same order must be used here, on the Submissions pages and in the
 	// column headings on the main page.
 
@@ -33,7 +32,7 @@
 		array( 'name' => 'Featured Article Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Good Article', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Good Topic article', 'points' => 5, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
-		array( 'name' => 'Good Article Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Good Article or Peer Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Did You Know', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'In the News article', 'points' => 12, 'lineStart' => '\#', 'hasMultipliers' => false ),
 	);

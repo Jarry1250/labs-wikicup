@@ -26,7 +26,7 @@
 
 	$categories = array(
 		array( 'name' => 'Featured Article', 'points' => 200, 'lineStart' => '\#', 'hasMultipliers' => true ),
-		array( 'name' => 'Featured List', 'points' => 45, 'lineStart' => '\#', 'hasMultipliers' => true ),
+		array( 'name' => 'Featured List', 'points' => 55, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured Picture', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Featured Topic article', 'points' => 15, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Featured Article Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),

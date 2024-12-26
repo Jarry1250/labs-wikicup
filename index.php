@@ -1,6 +1,6 @@
 <?php
 /*
-Wikicup statistics display � 2011 Harry Burt <jarry1250@gmail.com>
+Wikicup statistics display � 2011, 2024 Harry Burt <jarry1250@gmail.com>
 
 @todo: caching
 @todo: login problem / new peachy
@@ -8,7 +8,7 @@ Wikicup statistics display � 2011 Harry Burt <jarry1250@gmail.com>
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
-( at your option ) any later version.
+(at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -188,6 +188,7 @@ if( $year == $thisYear ){
 		<p><strong>As \"fastest loser\":</strong> " . makePresentable( $fastestLosers ) . "</p>";
 			}
 		}
+	    $rounds[] = $totals;
 	?>
 		<h3>Articles created</h3>
 		<table>
@@ -195,23 +196,19 @@ if( $year == $thisYear ){
 		<tr>
 			<th class="nobg"></th>
 			<?php
-				foreach( $categories as $key => $value ){
-					echo "<th><abbr title=\"$value\">$key</abbr></th>\n";
+				foreach( $categories as $abbreviation => $name ){
+					echo "<th><abbr title=\"$name\">$abbreviation</abbr></th>\n";
 				}
 			?>
 		</tr>
 		</thead>
 		<tbody>
 		<?php
-			$i = 0;
-			foreach( $rounds as $round ) {
+			foreach( $rounds as $i => $round ) {
 				$counts = array();
-				if( ++$i % 2 == 1 ){
-					$class = "orig";
-				} else {
-					$class= "alt";
-				}
-				echo "<tr>\n<th class='$class'>Round $i</th>\n";
+				$class = ( $i % 2 == 0 ) ? "alt" : "orig";
+				$roundName = ($i < count($rounds)) ? "Round&nbsp;$i" : "Total";
+				echo "<tr>\n<th class='$class'>$roundName</th>\n";
 				foreach( $round as $key => $category ) {
 					if( $key == 'DYK' && $year >= 2013 ) {
 						// Needs a proper fix but will do for now
@@ -222,21 +219,6 @@ if( $year == $thisYear ){
 				}
 				echo "</tr>\n";
 			}
-			if( ++$i % 2 == 1 ){
-				$class = "orig";
-			} else {
-				$class= "alt";
-			}
-			echo "<tr>\n<th class='$class'>Total</th>\n";
-			foreach ( $totals as $key => $total ){
-				if( $key == 'DYK' && $year >= 2013 ) {
-					// Needs a proper fix but will do for now
-					echo "<td class='$class'>" . ceil( $total['total'] / 2 ) . "-" . $total['total'] . "</td>\n";
-				} else {
-					echo "<td class='$class'>" . $total['total'] . "</td>\n";
-				}
-			}
-			echo "</tr>";
 		?>
 		</tbody>
 		<tfoot>
@@ -252,46 +234,43 @@ if( $year == $thisYear ){
 		<tr>
 			<th class="nobg"></th>
 			<?php
-				foreach( $categories as $key => $value ){
-					echo "<th><abbr title=\"$value\">$key</abbr></th>\n";
+				foreach( $categories as $abbreviation => $name ){
+					echo "<th><abbr title=\"$name\">$abbreviation</abbr></th>\n";
 				}
 			?>
 		</tr>
 		</thead>
 		<tbody>
 		<?php
-			$i = 0;
-			foreach( $rounds as $round ){
-				if( ++$i % 2 == 1 ){
-					$class = "orig";
-				} else {
-					$class= "alt";
-				}
-				echo "<tr>\n<th class='$class'>Round $i</th>\n";
-				foreach ( $round as $key => $contribs ){
-					unset( $contribs['total'] );
-					asort( $contribs );
+			foreach( $rounds as $i => $round ){
+				$class = ( $i % 2 == 0 ) ? "alt" : "orig";
+				$roundName = ($i < count($rounds)) ? "Round&nbsp;$i" : "Total";
+				echo "<tr>\n<th class='$class'>$roundName</th>\n";
+				foreach ( $round as $category => $participants ) {
+					unset( $participants['total'] );
 					$top = array();
 
-					$benchmark = ( count( $contribs ) == 0 ) ? 0 : max( $contribs );
-					while ( count( $contribs ) != 0 ){
-						$values = array_values( $contribs );
-						$new = array_pop( $values );
-						if( $new != $benchmark ){
+					// Sort high to low
+					arsort( $participants );
+
+					// Skim off only the top scorers
+					$benchmark = 0;
+					foreach( $participants as $name => $number ) {
+						if( $benchmark > 0 && $number != $benchmark ) {
 							break;
-						} else {
-							$keys = array_keys( $contribs );
-							array_push( $top, array_pop( $keys ) );
-							array_pop( $contribs );
 						}
-					}
-					if( $key == 'DYK' && $year >= 2013 ) {
-						$benchmark = ceil( $benchmark / 2 ) . "-" . $benchmark;
+						$benchmark = $number;
+						array_push( $top, $name );
 					}
 					$num = count( $top );
-					if( $num > 0 && $num < 4 ) { 
+
+					if( $category == 'DYK' && $year >= 2013 ) {
+						$benchmark = ceil( $benchmark / 2 ) . "-" . $benchmark;
+					}
+
+					if( $num > 0 && $num < 4 ) {
 						echo "<td class='$class'>" . implode( ", ", $top ) . " ($benchmark)</td>\n";
-					} else if ( $num > 0 ){
+					} else if( $num > 0 ) {
 						echo "<td class='$class'><abbr title='" . implode( ", ", $top ) . "'>$num editors</abbr> ($benchmark)</td>\n";
 					} else {
 						echo "<td class='$class'>N/A</td>\n";
@@ -299,41 +278,6 @@ if( $year == $thisYear ){
 				}
 				echo "</tr>\n";
 			}
-			if( $i % 2 == 1 ){
-				$class = "orig";
-			} else {
-				$class= "alt";
-			}
-			echo "<tr>\n<th class='$class'>Total</th>\n";
-			foreach ( $totals as $key => $contribs ){
-				unset( $contribs['total'] );
-				asort( $contribs );
-				$top = array();
-				$benchmark = ( count( $contribs ) == 0 ) ? 0 : max( $contribs );
-				while ( count( $contribs ) != 0 ){
-					$values = array_values( $contribs );
-					$new = array_pop( $values );
-					if( $new != $benchmark ){
-						break;
-					} else {
-						$keys = array_keys( $contribs );
-						array_push( $top, array_pop( $keys ) );
-						array_pop( $contribs );
-					}
-				}
-				if( $key == 'DYK' && $year >= 2013 ) {
-					$benchmark = ceil( $benchmark / 2 ) . "-" . $benchmark;
-				}
-				$num = count( $top );
-				if( $num > 0 && $num < 4 ) { 
-					echo "<td class='$class'>" . implode( ", ", $top ) . " ($benchmark)</td>\n";
-				} else if ( $num > 0 ){
-					echo "<td class='$class'><abbr title='" . implode( ", ", $top ) . "'>$num editors</abbr> ($benchmark)</td>\n";
-				} else {
-					echo "<td class='$class'>N/A</td>\n";
-				}
-			}
-			echo "</tr>";
 		?>
 		</tbody>
 		<tfoot>

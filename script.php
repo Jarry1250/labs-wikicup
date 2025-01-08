@@ -170,17 +170,42 @@
 
 	echo "Finished,";
 	if( $pointsPageTextOriginal !== $pointsPageText ){
-		echo " loading diff...\n";
+		echo "Sorting...\n";
+		$pointsPageText = sortPointsPageText( $pointsPageText );
+		echo "Loading points page diff...\n";
 		Diff::load( $pointsPageTextOriginal, $pointsPageText )->printUnifiedDiff();
 	} else {
 		echo "no change.\n";
 	}
-	if( !$debug ) $pointsPage->edit( $pointsPageText, "Bot: Updating WikiCup table", true );
+	if( !$debug ) $pointsPage->edit( $pointsPageText, "Bot: Updating and sorting WikiCup table", true );
 
 	$site->purge( 'Wikipedia:WikiCup' );
 
 	echo "\n<!-- End output at " . date( 'j F Y \a\t H:i' ) . " -->";
 
+	function sortPointsPageText( $pointsPageText ) {
+		// Extract each contestant's row
+		preg_match_all( "/\|- .*?\n\|\{\{Wikipedia:WikiCup\/Participant.*'''\n/", $pointsPageText, $matches);
+		$matches = $matches[0];
+		$original = implode($matches);
+
+		// Sort the rows
+		usort($matches, function($a, $b) {
+			// Extract last number from each string
+			preg_match("/'''(\d+)'''/", $a, $matchesA);
+			preg_match("/'''(\d+)'''/", $b, $matchesB);
+
+			// Get the numbers, default to 0 if no match found
+			$numA = isset($matchesA[1]) ? intval($matchesA[1]) : 0;
+			$numB = isset($matchesB[1]) ? intval($matchesB[1]) : 0;
+			// Compare numbers
+			return $numB - $numA;
+		});
+		$sorted = implode($matches);
+
+		// Replace the unsorted rows with the sorted rows
+		return str_replace( $original, $sorted, $pointsPageText );
+	}
 
 	function getJSON( $url ) {
 		global $http;

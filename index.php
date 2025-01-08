@@ -188,20 +188,29 @@
         <thead>
         <tr>
             <th class="nobg"></th>
-            <th>Projected round points</th>
-            <th>Projected tournament points</th>
+<?php
+    foreach( $rounds as $i => $val ) {
+        echo "\t\t\t<th>R$i</th>";
+	}
+?>
+            <th>Total</th>
         </tr>
         </thead>
         <tbody>
 <?php
     $i = 0;
-	foreach( $tournamentPoints as $name => $points ) {
+	foreach( $tournamentPoints as $name => $tPoints ) {
 		$class = ( $i++ % 2 == 0 ) ? "alt" : "orig";
-		$roundPoint = isset($roundPoints[count($roundPoints)], $roundPoints[count($roundPoints)][$name] ) ? $roundPoints[count($roundPoints)][$name] : 0;
+
+		if( count($roundPoints) == 0 ) $roundPoints = [1 => []];
+
 		echo "\t\t<tr>\n";
 		echo "\t\t\t<th class='$class'>$name</th>\n";
-		echo "\t\t\t<td>$roundPoint</td>\n";
-		echo "\t\t\t<td>$points</td>\n";
+		foreach( $roundPoints as $round => $rPoints ) {
+			$rPointString = isset( $rPoints[$name] ) ? $rPoints[$name] : 0;
+			echo "\t\t\t<td>$rPointString</td>\n";
+		}
+		echo "\t\t\t<td>$tPoints</td>\n";
 		echo "\t\t</tr>\n";
 	}
 ?>
@@ -209,7 +218,7 @@
         </tbody>
         <tfoot>
         <tr>
-            <td style="border:none; padding:0;" colspan="13"><p style="font-size:60%">Updated live. Does not include bonus tournament points. Any participant not shown currently has 0 Round Points, 0 Tournament Points.</p></td>
+            <td style="border:none; padding:0;" colspan="13"><p style="font-size:60%">Updated live. Total does not include bonus tournament points. Any participant not shown currently has 0 total (tournament) points.</p></td>
         </tr>
         </tfoot>
     </table>

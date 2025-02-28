@@ -135,7 +135,7 @@
 		$roundPoints[$round] = [];
         foreach( $scores as $name => $score ) {
             $position = array_search($score, $roundReferenceScores[$round]); // In the event of a tie, everyone gets best position
-            if( $position === false ) {
+            if( $score == 0 || $position === false ) {
                 continue;
             }
             if( !isset( $tournamentPoints[$name] ) ) {
@@ -145,7 +145,7 @@
                 $roundPoints[$round][$name] = 0;
             }
             // echo "$round. $name => $score\n";
-			$roundPoints[$round][$name] = pow(16 - $position, 2 ); // Square of inverse position
+			$roundPoints[$round][$name] = pow( 16 - $position, 2 ); // Square of inverse position
 			$tournamentPoints[$name] += $roundPoints[$round][$name];
         }
 		arsort( $roundPoints[$round] ); // Just to help debugging

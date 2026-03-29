@@ -416,9 +416,9 @@
 	function getCurrentDykBatchLiveTime() {
 		global $apiBase, $currentDykBatchLiveTime;
 		if ( !$currentDykBatchLiveTime ) {
-			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=Wikipedia:Recent%20additions&rvprop=content&rvlimit=1" );
+			$json = getJSON( $apiBase . "action=query&prop=revisions&titles=Wikipedia:Did%20you%20know%20archive&rvprop=content&rvlimit=1&rvslots=main" );
 			$page = array_shift( $json['query']['pages'] );
-			$text = $page['revisions'][0]['*'];
+			$text = $page['revisions'][0]['slots']['main']['*'];
 			preg_match( "/'''''([^']+) \(UTC\)'''''/i", $text, $matches );
 
 			// The first timestamp on Recent additions equates to the time the current batch went live (weirdly)

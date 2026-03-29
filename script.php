@@ -29,10 +29,10 @@
 		array( 'name' => 'Featured List', 'points' => 55, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Featured Picture', 'points' => 30, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Featured Topic article', 'points' => 15, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
-		array( 'name' => 'Featured Article Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Featured Article or Peer Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Good Article', 'points' => 35, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'Good Topic article', 'points' => 5, 'lineStart' => '\#\#', 'hasMultipliers' => false ),
-		array( 'name' => 'Good Article or Peer Review', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => false ),
+		array( 'name' => 'Good Article Review', 'points' => 10, 'lineStart' => '\#', 'hasMultipliers' => false ),
 		array( 'name' => 'Did You Know', 'points' => 5, 'lineStart' => '\#', 'hasMultipliers' => true ),
 		array( 'name' => 'In the News article', 'points' => 12, 'lineStart' => '\#', 'hasMultipliers' => false ),
 	);

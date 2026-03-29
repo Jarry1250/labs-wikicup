@@ -19,7 +19,7 @@
 
     // These you might want to change
     $categories = array( 'FA' => 'Featured Article', 'FL' => 'Featured List', 'FP' => 'Featured Picture', 'FT' => 'Featured Topic article', 'FAR' => 'Featured Article Review', 'GA' => 'Good Article', 'GT' => 'Good Topic article', 'GAR' => 'Good Article Review', 'DYK' => 'Did You Know', 'ITN' => 'In the News article' );
-    $points = array( 'FA' => 200, 'FL' => 55, 'FP' => 30, 'FT' => 15, 'FAR' => 5, 'GA' => 35, 'GT' => 5, 'GAR' => 5, 'DYK' => 5, 'ITN' => 12 );
+    $points = array( 'FA' => 200, 'FL' => 55, 'FP' => 30, 'FT' => 15, 'FAR' => 5, 'GA' => 35, 'GT' => 5, 'GAR' => 10, 'DYK' => 5, 'ITN' => 12 );
     $numToQualifyFromMassPool = array( 'January' => 64, 'February' => 64, 'March' => 32, 'April' => 32, 'May' => 16, 'June' => 16, 'July' => 8, 'August' => 8 );
 
     // Everything below this line you probably don't
@@ -28,6 +28,9 @@
     $yearSupported = ( $year >= 2010 && $year <= $thisYear );
 
     // Adjust points for non-current years
+	if( $year < 2026 ){
+		$points['GAR'] = 5;
+	}
     if( $year < 2025 ){
         // Categories are unchanged, FL points drop to 45
         $points = array( 'FA' => 200, 'FL' => 45, 'FP' => 30, 'FT' => 15, 'FAR' => 5, 'GA' => 35, 'GT' => 5, 'GAR' => 5, 'DYK' => 5, 'ITN' => 12 );
